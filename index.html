@@ -240,6 +240,7 @@ const db = getDatabase(app);
 
 let appData = {};
 let currentUser="Swayam";
+let isSyncing = true; // ⭐ prevents overwrite
 
 function createEmpty(){
 return {
@@ -250,6 +251,10 @@ revision:{AFM:[],FR:[],DT:[],IDT:[],Audit:[]}
 }
 
 function save(){
+
+// 🚨 never write while Firebase is syncing
+if(isSyncing) return;
+
 set(ref(db, "caStudyTracker"), appData);
 }
 
@@ -330,6 +335,12 @@ document.getElementById(`${subject}-completed`).value=data.hours[subject]?.compl
 
 renderCompletion();
 renderRevision();
+
+// unlock AFTER inputs fill
+setTimeout(()=>{
+isSyncing = false;
+},400);
+
 updateChart();
 }
 
@@ -379,144 +390,8 @@ chart.data.datasets[0].backgroundColor=colors;
 chart.update();
 }
 
-/******** COMPLETION ********/
-
-function addCompletion(){
-
-if(!appData[currentUser]){
-appData[currentUser]=createEmpty();
-}
-
-const subject=completionSubject.value;
-const chapter=completionChapter.value.trim();
-if(!chapter) return;
-
-appData[currentUser].completion[subject].push({name:chapter,checks:[false,false,false]});
-completionChapter.value="";
-save();
-renderCompletion();
-}
-
-function renderCompletion(){
-
-completionTables.innerHTML="";
-const userData=appData[currentUser] || createEmpty();
-
-subjects.forEach(subject=>{
-
-if(userData.completion[subject].length===0) return;
-
-let rows="";
-
-userData.completion[subject].forEach((ch,index)=>{
-
-rows+=`
-<tr>
-<td>${ch.name}</td>
-${ch.checks.map((val,i)=>`
-<td><input type="checkbox" ${val?"checked":""}
-onchange="toggleCompletion('${subject}',${index},${i})"></td>`).join("")}
-</tr>`;
-});
-
-const card=document.createElement("div");
-card.className="subjectCard";
-
-card.innerHTML=`
-<div class="subjectTitle">${subject}</div>
-<table>
-<tr>
-<th>Chapter</th>
-<th>Chapter</th>
-<th>Questions</th>
-<th>MCQs</th>
-</tr>
-${rows}
-</table>
-`;
-
-completionTables.appendChild(card);
-});
-}
-
-function toggleCompletion(subject,index,box){
-let ch=appData[currentUser].completion[subject][index];
-ch.checks[box]=!ch.checks[box];
-save();
-}
-
-/******** REVISION ********/
-
-function addRevision(){
-
-if(!appData[currentUser]){
-appData[currentUser]=createEmpty();
-}
-
-const subject=revisionSubject.value;
-const chapter=revisionChapter.value.trim();
-if(!chapter) return;
-
-appData[currentUser].revision[subject].push({name:chapter,checks:[false,false,false,false,false]});
-revisionChapter.value="";
-save();
-renderRevision();
-}
-
-function renderRevision(){
-
-revisionTables.innerHTML="";
-const userData=appData[currentUser] || createEmpty();
-
-subjects.forEach(subject=>{
-
-if(userData.revision[subject].length===0) return;
-
-let rows="";
-
-userData.revision[subject].forEach((ch,index)=>{
-
-rows+=`
-<tr>
-<td>${ch.name}</td>
-${ch.checks.map((val,i)=>`
-<td><input type="checkbox" ${val?"checked":""}
-onchange="toggleRevision('${subject}',${index},${i})"></td>`).join("")}
-</tr>`;
-});
-
-const card=document.createElement("div");
-card.className="subjectCard";
-
-card.innerHTML=`
-<div class="subjectTitle">${subject}</div>
-<table>
-<tr>
-<th>Chapter</th>
-<th>R1</th>
-<th>R2</th>
-<th>R3</th>
-<th>R4</th>
-<th>R5</th>
-</tr>
-${rows}
-</table>
-`;
-
-revisionTables.appendChild(card);
-});
-}
-
-/******** MAKE FUNCTIONS GLOBAL ********/
-
-window.switchUser = switchUser;
-window.switchTab = switchTab;
-window.addCompletion = addCompletion;
-window.addRevision = addRevision;
-window.toggleCompletion = toggleCompletion;
-window.toggleRevision = toggleRevision;
-
 /******** INIT ********/
+
 async function initializeIfFirstTime(){
 
 const snapshot = await get(ref(db,"caStudyTracker"));
@@ -524,14 +399,13 @@ const snapshot = await get(ref(db,"caStudyTracker"));
 if(!snapshot.exists()){
 
 appData = {
-    Swayam:createEmpty(),
-    Nishika:createEmpty()
+Swayam:createEmpty(),
+Nishika:createEmpty()
 };
 
+isSyncing = false;
 save();
-
 }
-
 }
 
 initializeIfFirstTime();
@@ -541,12 +415,15 @@ onValue(ref(db, "caStudyTracker"), (snapshot)=>{
 const data = snapshot.val();
 
 if(data){
-    appData = data;
-    loadUser();
+
+isSyncing = true; // lock writes
+
+appData = data;
+loadUser();
+
 }
 
 });
-
 
 </script>
 
