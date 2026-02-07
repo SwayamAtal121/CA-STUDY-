@@ -149,7 +149,7 @@ text-align:center;
 font-size:12px; 
 color:#94a3b8; 
 margin-top:20px;
-transition: all 0.3s;
+opacity: 0.7;
 }
 
 .hidden{display:none;}
@@ -182,7 +182,6 @@ transition: all 0.3s;
                 <h3>Enter Study Hours</h3>
                 <div id="inputs"></div>
             </div>
-
             <div class="card">
                 <h3>Study Distribution</h3>
                 <canvas id="pieChart"></canvas>
@@ -218,12 +217,12 @@ transition: all 0.3s;
         </div>
     </div>
 
-    <div id="saveStatus">Syncing with cloud...</div>
+    <div id="saveStatus">Connecting...</div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD-K-dXLSlLUqj_qir5PMtrxblzcq_PqY4",
@@ -238,9 +237,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/******** DATA ********/
-let appData = null; 
+let appData = null;
 let currentUser = "Swayam";
+const subjects = ["AFM", "FR", "DT", "IDT", "Audit"];
 
 function createEmpty() {
     return {
@@ -251,57 +250,43 @@ function createEmpty() {
 }
 
 function save() {
-    if (appData && Object.keys(appData).length > 0) {
+    if (appData) {
         set(ref(db, "caStudyTracker"), appData).then(() => {
-            const now = new Date();
-            document.getElementById("saveStatus").innerText = "Last synced: " + now.toLocaleTimeString();
-        }).catch(() => {
-            document.getElementById("saveStatus").innerText = "Sync Error!";
+            document.getElementById("saveStatus").innerText = "Last Saved: " + new Date().toLocaleTimeString();
         });
     }
 }
 
-/******** USER SWITCH ********/
-window.switchUser = function(e, user) {
+// ATTACH FUNCTIONS TO WINDOW FOR HTML ACCESS
+window.switchUser = (e, user) => {
     currentUser = user;
     document.querySelectorAll(".userBtn").forEach(b => b.classList.remove("active"));
     e.target.classList.add("active");
     loadUser();
 };
 
-/******** TABS ********/
-window.switchTab = function(tab) {
+window.switchTab = (tab) => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById('hoursTab').classList.add('hidden');
     document.getElementById('completionTab').classList.add('hidden');
     document.getElementById('revisionTab').classList.add('hidden');
 
-    if(tab === 'hours') {
-        document.getElementById('hoursTab').classList.remove('hidden');
-        document.querySelectorAll('.tab')[0].classList.add('active');
-    } else if(tab === 'completion') {
-        document.getElementById('completionTab').classList.remove('hidden');
-        document.querySelectorAll('.tab')[1].classList.add('active');
-    } else {
-        document.getElementById('revisionTab').classList.remove('hidden');
-        document.querySelectorAll('.tab')[2].classList.add('active');
-    }
+    document.getElementById(tab + 'Tab').classList.remove('hidden');
+    const tabs = document.querySelectorAll('.tab');
+    if(tab==='hours') tabs[0].classList.add('active');
+    if(tab==='completion') tabs[1].classList.add('active');
+    if(tab==='revision') tabs[2].classList.add('active');
 };
 
-/******** PIE ********/
-const subjects = ["AFM", "FR", "DT", "IDT", "Audit"];
-const baseColors = ["99,102,241", "34,197,94", "245,158,11", "239,68,68", "6,182,212"];
-
+// HOURS LOGIC
 const inputsDiv = document.getElementById("inputs");
 subjects.forEach(subject => {
     const row = document.createElement("div");
     row.className = "row";
-    row.innerHTML = `
-        <span>${subject}</span>
-        <div class="inputGroup">
-            <input type="number" placeholder="Total" id="${subject}-total">
-            <input type="number" placeholder="Done" id="${subject}-completed">
-        </div>`;
+    row.innerHTML = `<span>${subject}</span><div class="inputGroup">
+        <input type="number" placeholder="Total" id="${subject}-total">
+        <input type="number" placeholder="Done" id="${subject}-completed">
+    </div>`;
     inputsDiv.appendChild(row);
 });
 
@@ -311,33 +296,10 @@ const chart = new Chart(document.getElementById('pieChart'), {
     options: { plugins: { legend: { labels: { color: "white" } } }, cutout: "65%" }
 });
 
-function loadUser() {
-    if (!appData) return;
-    if (!appData[currentUser]) appData[currentUser] = createEmpty();
-
-    const data = appData[currentUser];
-    subjects.forEach(subject => {
-        document.getElementById(`${subject}-total`).value = data.hours[subject]?.total || "";
-        document.getElementById(`${subject}-completed`).value = data.hours[subject]?.completed || "";
-    });
-
-    renderCompletion();
-    renderRevision();
-    updateChart(false); 
-}
-
-// Global update listener
-document.querySelectorAll("input").forEach(i => {
-    i.addEventListener("input", () => updateChart(true));
-});
-
 function updateChart(shouldSave = true) {
     if (!appData) return;
-    if (!appData[currentUser]) appData[currentUser] = createEmpty();
-
-    const labels = [];
-    const data = [];
-    const colors = [];
+    const baseColors = ["99,102,241", "34,197,94", "245,158,11", "239,68,68", "6,182,212"];
+    const labels = [], data = [], colors = [];
 
     subjects.forEach((subject, i) => {
         const total = parseFloat(document.getElementById(`${subject}-total`).value) || 0;
@@ -345,17 +307,9 @@ function updateChart(shouldSave = true) {
         appData[currentUser].hours[subject] = { total, completed };
 
         if (total > 0) {
-            const remaining = total - completed;
-            if (completed > 0) {
-                labels.push(subject + " ✔");
-                data.push(completed);
-                colors.push(`rgba(${baseColors[i]},1)`);
-            }
-            if (remaining > 0) {
-                labels.push(subject);
-                data.push(remaining);
-                colors.push(`rgba(${baseColors[i]},.2)`);
-            }
+            const rem = total - completed;
+            if (completed > 0) { labels.push(subject + " ✔"); data.push(completed); colors.push(`rgba(${baseColors[i]},1)`); }
+            if (rem > 0) { labels.push(subject); data.push(rem); colors.push(`rgba(${baseColors[i]},.2)`); }
         }
     });
 
@@ -363,103 +317,101 @@ function updateChart(shouldSave = true) {
     chart.data.datasets[0].data = data;
     chart.data.datasets[0].backgroundColor = colors;
     chart.update();
-
     if (shouldSave) save();
 }
 
-/******** COMPLETION ********/
-window.addCompletion = function() {
-    if (!appData) return;
-    const subject = document.getElementById("completionSubject").value;
-    const chapter = document.getElementById("completionChapter").value.trim();
-    if (!chapter) return;
+document.querySelectorAll("#inputs input").forEach(i => i.addEventListener("input", () => updateChart(true)));
 
-    appData[currentUser].completion[subject].push({ name: chapter, checks: [false, false, false] });
+// COMPLETION LOGIC
+window.addCompletion = () => {
+    const sub = document.getElementById("completionSubject").value;
+    const ch = document.getElementById("completionChapter").value.trim();
+    if (!ch || !appData) return;
+    if (!appData[currentUser].completion[sub]) appData[currentUser].completion[sub] = [];
+    appData[currentUser].completion[sub].push({ name: ch, checks: [false, false, false] });
     document.getElementById("completionChapter").value = "";
     save();
     renderCompletion();
 };
 
-function renderCompletion() {
-    const tableDiv = document.getElementById("completionTables");
-    tableDiv.innerHTML = "";
-    const userData = appData[currentUser] || createEmpty();
-
-    subjects.forEach(subject => {
-        if (!userData.completion[subject] || userData.completion[subject].length === 0) return;
-        let rows = "";
-        userData.completion[subject].forEach((ch, index) => {
-            rows += `
-                <tr>
-                    <td>${ch.name}</td>
-                    ${ch.checks.map((val, i) => `
-                    <td><input type="checkbox" ${val ? "checked" : ""} 
-                    onchange="toggleCompletion('${subject}',${index},${i})"></td>`).join("")}
-                </tr>`;
-        });
-        const card = document.createElement("div");
-        card.className = "subjectCard";
-        card.innerHTML = `<div class="subjectTitle">${subject}</div><table><tr><th>Chapter</th><th>Chapter</th><th>Questions</th><th>MCQs</th></tr>${rows}</table>`;
-        tableDiv.appendChild(card);
-    });
-}
-
-window.toggleCompletion = function(subject, index, box) {
-    appData[currentUser].completion[subject][index].checks[box] = !appData[currentUser].completion[subject][index].checks[box];
+window.toggleCompletion = (sub, idx, box) => {
+    appData[currentUser].completion[sub][idx].checks[box] = !appData[currentUser].completion[sub][idx].checks[box];
     save();
 };
 
-/******** REVISION ********/
-window.addRevision = function() {
-    if (!appData) return;
-    const subject = document.getElementById("revisionSubject").value;
-    const chapter = document.getElementById("revisionChapter").value.trim();
-    if (!chapter) return;
+function renderCompletion() {
+    const div = document.getElementById("completionTables");
+    div.innerHTML = "";
+    const userData = appData[currentUser];
+    subjects.forEach(sub => {
+        const chapters = userData.completion[sub] || [];
+        if (chapters.length === 0) return;
+        let rows = "";
+        chapters.forEach((c, i) => {
+            rows += `<tr><td>${c.name}</td>${c.checks.map((v, b) => `<td><input type="checkbox" ${v?"checked":""} onchange="toggleCompletion('${sub}',${i},${b})"></td>`).join("")}</tr>`;
+        });
+        const card = document.createElement("div");
+        card.className = "subjectCard";
+        card.innerHTML = `<div class="subjectTitle">${sub}</div><table><tr><th>Chapter</th><th>Video/Read</th><th>Questions</th><th>MCQs</th></tr>${rows}</table>`;
+        div.appendChild(card);
+    });
+}
 
-    appData[currentUser].revision[subject].push({ name: chapter, checks: [false, false, false, false, false] });
+// REVISION LOGIC
+window.addRevision = () => {
+    const sub = document.getElementById("revisionSubject").value;
+    const ch = document.getElementById("revisionChapter").value.trim();
+    if (!ch || !appData) return;
+    if (!appData[currentUser].revision[sub]) appData[currentUser].revision[sub] = [];
+    appData[currentUser].revision[sub].push({ name: ch, checks: [false, false, false, false, false] });
     document.getElementById("revisionChapter").value = "";
     save();
     renderRevision();
 };
 
-function renderRevision() {
-    const tableDiv = document.getElementById("revisionTables");
-    tableDiv.innerHTML = "";
-    const userData = appData[currentUser] || createEmpty();
-
-    subjects.forEach(subject => {
-        if (!userData.revision[subject] || userData.revision[subject].length === 0) return;
-        let rows = "";
-        userData.revision[subject].forEach((ch, index) => {
-            rows += `
-                <tr>
-                    <td>${ch.name}</td>
-                    ${ch.checks.map((val, i) => `
-                    <td><input type="checkbox" ${val ? "checked" : ""} 
-                    onchange="toggleRevision('${subject}',${index},${i})"></td>`).join("")}
-                </tr>`;
-        });
-        const card = document.createElement("div");
-        card.className = "subjectCard";
-        card.innerHTML = `<div class="subjectTitle">${subject}</div><table><tr><th>Chapter</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>R5</th></tr>${rows}</table>`;
-        tableDiv.appendChild(card);
-    });
-}
-
-window.toggleRevision = function(subject, index, box) {
-    appData[currentUser].revision[subject][index].checks[box] = !appData[currentUser].revision[subject][index].checks[box];
+window.toggleRevision = (sub, idx, box) => {
+    appData[currentUser].revision[sub][idx].checks[box] = !appData[currentUser].revision[sub][idx].checks[box];
     save();
 };
 
-/******** INIT & REAL-TIME SYNC ********/
-onValue(ref(db, "caStudyTracker"), (snapshot) => {
-    const data = snapshot.val();
+function renderRevision() {
+    const div = document.getElementById("revisionTables");
+    div.innerHTML = "";
+    const userData = appData[currentUser];
+    subjects.forEach(sub => {
+        const chapters = userData.revision[sub] || [];
+        if (chapters.length === 0) return;
+        let rows = "";
+        chapters.forEach((c, i) => {
+            rows += `<tr><td>${c.name}</td>${c.checks.map((v, b) => `<td><input type="checkbox" ${v?"checked":""} onchange="toggleRevision('${sub}',${i},${b})"></td>`).join("")}</tr>`;
+        });
+        const card = document.createElement("div");
+        card.className = "subjectCard";
+        card.innerHTML = `<div class="subjectTitle">${sub}</div><table><tr><th>Chapter</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>R5</th></tr>${rows}</table>`;
+        div.appendChild(card);
+    });
+}
+
+function loadUser() {
+    if (!appData) return;
+    if (!appData[currentUser]) appData[currentUser] = createEmpty();
+    const data = appData[currentUser];
+    subjects.forEach(s => {
+        document.getElementById(`${s}-total`).value = data.hours[s]?.total || "";
+        document.getElementById(`${s}-completed`).value = data.hours[s]?.completed || "";
+    });
+    renderCompletion();
+    renderRevision();
+    updateChart(false);
+}
+
+// FIREBASE SYNC
+onValue(ref(db, "caStudyTracker"), (snap) => {
+    const data = snap.val();
     if (data) {
         appData = data;
-        document.getElementById("saveStatus").innerText = "Data updated: " + new Date().toLocaleTimeString();
     } else {
         appData = { Swayam: createEmpty(), Nishika: createEmpty() };
-        document.getElementById("saveStatus").innerText = "Fresh database ready.";
     }
     loadUser();
 });
