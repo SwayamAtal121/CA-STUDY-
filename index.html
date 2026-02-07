@@ -240,7 +240,7 @@ const db = getDatabase(app);
 
 let appData = {};
 let currentUser="Swayam";
-let isSyncing = true; // ⭐ prevents overwrite
+let isSyncing = true;
 
 function createEmpty(){
 return {
@@ -250,12 +250,18 @@ revision:{AFM:[],FR:[],DT:[],IDT:[],Audit:[]}
 };
 }
 
+/******** SAFE SAVE ********/
+
 function save(){
 
-// 🚨 never write while Firebase is syncing
 if(isSyncing) return;
 
-set(ref(db, "caStudyTracker"), appData);
+// ⭐ WRITE ONLY CURRENT USER
+set(
+ref(db, "caStudyTracker/users/" + currentUser),
+appData[currentUser]
+);
+
 }
 
 /******** USER SWITCH ********/
@@ -269,7 +275,38 @@ document.querySelectorAll(".userBtn")
 
 e.target.classList.add("active");
 
+// listen to new user
+attachListener();
+
+}
+
+/******** FIREBASE LISTENER ********/
+
+let unsubscribe;
+
+function attachListener(){
+
+if(unsubscribe) unsubscribe();
+
+isSyncing = true;
+
+const userRef = ref(db, "caStudyTracker/users/" + currentUser);
+
+unsubscribe = onValue(userRef, (snapshot)=>{
+
+if(snapshot.exists()){
+appData[currentUser] = snapshot.val();
+}else{
+appData[currentUser] = createEmpty();
+save();
+}
+
 loadUser();
+
+setTimeout(()=>{ isSyncing=false; },300);
+
+});
+
 }
 
 /******** TABS ********/
@@ -333,14 +370,8 @@ document.getElementById(`${subject}-total`).value=data.hours[subject]?.total||""
 document.getElementById(`${subject}-completed`).value=data.hours[subject]?.completed||"";
 });
 
-renderCompletion();
-renderRevision();
-
-// unlock AFTER inputs fill
-setTimeout(()=>{
-isSyncing = false;
-},400);
-
+renderCompletion?.();
+renderRevision?.();
 updateChart();
 }
 
@@ -390,40 +421,9 @@ chart.data.datasets[0].backgroundColor=colors;
 chart.update();
 }
 
-/******** INIT ********/
+/******** FIRST INIT ********/
 
-async function initializeIfFirstTime(){
-
-const snapshot = await get(ref(db,"caStudyTracker"));
-
-if(!snapshot.exists()){
-
-appData = {
-Swayam:createEmpty(),
-Nishika:createEmpty()
-};
-
-isSyncing = false;
-save();
-}
-}
-
-initializeIfFirstTime();
-
-onValue(ref(db, "caStudyTracker"), (snapshot)=>{
-
-const data = snapshot.val();
-
-if(data){
-
-isSyncing = true; // lock writes
-
-appData = data;
-loadUser();
-
-}
-
-});
+attachListener();
 
 </script>
 
