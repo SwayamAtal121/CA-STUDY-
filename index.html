@@ -1,5 +1,5 @@
-
 <!DOCTYPE html>
+
 <html>
 <head>
 <title>CA Study Tracker</title>
@@ -8,7 +8,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-
 *{box-sizing:border-box;}
 
 body{
@@ -25,8 +24,6 @@ padding:30px 18px;
 }
 
 h1{text-align:center;margin-bottom:18px;}
-
-/******** USER SWITCH ********/
 
 .userSwitch{
 display:flex;
@@ -47,8 +44,6 @@ background:#22c55e;
 box-shadow:0 0 16px rgba(34,197,94,.6);
 }
 
-/******** TABS ********/
-
 .tabs{
 display:flex;
 justify-content:center;
@@ -68,8 +63,6 @@ background:rgba(255,255,255,0.06);
 background:#6366f1;
 box-shadow:0 0 18px rgba(99,102,241,.6);
 }
-
-/******** LAYOUT ********/
 
 .container{
 display:grid;
@@ -157,8 +150,8 @@ cursor:pointer;
 @media(max-width:900px){
 .container{grid-template-columns:1fr;}
 }
-
 </style>
+
 </head>
 
 <body>
@@ -178,12 +171,8 @@ cursor:pointer;
 <div class="tab" onclick="switchTab('revision')">Revision</div>
 </div>
 
-<!-- HOURS -->
-
 <div id="hoursTab">
-
 <div class="container">
-
 <div class="card">
 <h3>Enter Study Hours</h3>
 <div id="inputs"></div>
@@ -193,54 +182,41 @@ cursor:pointer;
 <h3>Study Distribution</h3>
 <canvas id="pieChart"></canvas>
 </div>
-
 </div>
-
 </div>
-
-<!-- COMPLETION -->
 
 <div id="completionTab" class="hidden">
 <div class="card">
-
 <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
 <select id="completionSubject">
 <option>AFM</option><option>FR</option><option>DT</option>
 <option>IDT</option><option>Audit</option>
 </select>
-
 <input id="completionChapter" placeholder="Chapter name">
 <button onclick="addCompletion()">Add</button>
 </div>
-
 <div id="completionTables"></div>
-
 </div>
 </div>
-
-<!-- REVISION -->
 
 <div id="revisionTab" class="hidden">
 <div class="card">
-
 <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
 <select id="revisionSubject">
 <option>AFM</option><option>FR</option><option>DT</option>
 <option>IDT</option><option>Audit</option>
 </select>
-
 <input id="revisionChapter" placeholder="Chapter name">
 <button onclick="addRevision()">Add</button>
 </div>
-
 <div id="revisionTables"></div>
-
 </div>
 </div>
 
 </div>
 
 <script type="module">
+
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -254,18 +230,15 @@ const firebaseConfig = {
   projectId: "study-8c93f",
   storageBucket: "study-8c93f.firebasestorage.app",
   messagingSenderId: "467115751481",
-  appId: "1:467115751481:web:54f32f6d2fb036378bf5e8",
-  measurementId: "G-TBFFSEQ6RK"
+  appId: "1:467115751481:web:54f32f6d2fb036378bf5e8"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-
 /******** DATA ********/
 
 let appData = {};
-
 let currentUser="Swayam";
 
 function createEmpty(){
@@ -280,34 +253,43 @@ function save(){
 set(ref(db, "caStudyTracker"), appData);
 }
 
-
 /******** USER SWITCH ********/
 
-function switchUser(user){
+function switchUser(e, user){
 
 currentUser=user;
 
-document.querySelectorAll(".userBtn").forEach(b=>b.classList.remove("active"));
-event.target.classList.add("active");
+document.querySelectorAll(".userBtn")
+.forEach(b=>b.classList.remove("active"));
+
+e.target.classList.add("active");
 
 loadUser();
-
 }
 
 /******** TABS ********/
 
 function switchTab(tab){
 
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.querySelectorAll('.tab')
+.forEach(t=>t.classList.remove('active'));
 
-hoursTab.classList.add('hidden');
-completionTab.classList.add('hidden');
-revisionTab.classList.add('hidden');
+document.getElementById('hoursTab').classList.add('hidden');
+document.getElementById('completionTab').classList.add('hidden');
+document.getElementById('revisionTab').classList.add('hidden');
 
-if(tab==='hours'){hoursTab.classList.remove('hidden');document.querySelectorAll('.tab')[0].classList.add('active');}
-else if(tab==='completion'){completionTab.classList.remove('hidden');document.querySelectorAll('.tab')[1].classList.add('active');}
-else{revisionTab.classList.remove('hidden');document.querySelectorAll('.tab')[2].classList.add('active');}
-
+if(tab==='hours'){
+document.getElementById('hoursTab').classList.remove('hidden');
+document.querySelectorAll('.tab')[0].classList.add('active');
+}
+else if(tab==='completion'){
+document.getElementById('completionTab').classList.remove('hidden');
+document.querySelectorAll('.tab')[1].classList.add('active');
+}
+else{
+document.getElementById('revisionTab').classList.remove('hidden');
+document.querySelectorAll('.tab')[2].classList.add('active');
+}
 }
 
 /******** PIE ********/
@@ -318,7 +300,6 @@ const baseColors=["99,102,241","34,197,94","245,158,11","239,68,68","6,182,212"]
 const inputsDiv=document.getElementById("inputs");
 
 subjects.forEach(subject=>{
-
 const row=document.createElement("div");
 row.className="row";
 
@@ -330,7 +311,6 @@ row.innerHTML=`
 </div>`;
 
 inputsDiv.appendChild(row);
-
 });
 
 const chart=new Chart(document.getElementById('pieChart'),{
@@ -341,24 +321,26 @@ options:{plugins:{legend:{labels:{color:"white"}}},cutout:"65%"}
 
 function loadUser(){
 
-const data=appData[currentUser];
+const data = appData[currentUser] || createEmpty();
 
 subjects.forEach(subject=>{
-
 document.getElementById(`${subject}-total`).value=data.hours[subject]?.total||"";
 document.getElementById(`${subject}-completed`).value=data.hours[subject]?.completed||"";
-
 });
 
 renderCompletion();
 renderRevision();
 updateChart();
-
 }
 
-document.querySelectorAll("input").forEach(i=>i.addEventListener("input",updateChart));
+document.querySelectorAll("input")
+.forEach(i=>i.addEventListener("input",updateChart));
 
 function updateChart(){
+
+if(!appData[currentUser]){
+appData[currentUser]=createEmpty();
+}
 
 const labels=[];
 const data=[];
@@ -386,9 +368,7 @@ labels.push(subject);
 data.push(remaining);
 colors.push(`rgba(${baseColors[i]},.2)`);
 }
-
 }
-
 });
 
 save();
@@ -397,12 +377,15 @@ chart.data.labels=labels;
 chart.data.datasets[0].data=data;
 chart.data.datasets[0].backgroundColor=colors;
 chart.update();
-
 }
 
 /******** COMPLETION ********/
 
 function addCompletion(){
+
+if(!appData[currentUser]){
+appData[currentUser]=createEmpty();
+}
 
 const subject=completionSubject.value;
 const chapter=completionChapter.value.trim();
@@ -412,13 +395,12 @@ appData[currentUser].completion[subject].push({name:chapter,checks:[false,false,
 completionChapter.value="";
 save();
 renderCompletion();
-
 }
 
 function renderCompletion(){
 
 completionTables.innerHTML="";
-const userData=appData[currentUser];
+const userData=appData[currentUser] || createEmpty();
 
 subjects.forEach(subject=>{
 
@@ -435,7 +417,6 @@ ${ch.checks.map((val,i)=>`
 <td><input type="checkbox" ${val?"checked":""}
 onchange="toggleCompletion('${subject}',${index},${i})"></td>`).join("")}
 </tr>`;
-
 });
 
 const card=document.createElement("div");
@@ -455,9 +436,7 @@ ${rows}
 `;
 
 completionTables.appendChild(card);
-
 });
-
 }
 
 function toggleCompletion(subject,index,box){
@@ -470,6 +449,10 @@ save();
 
 function addRevision(){
 
+if(!appData[currentUser]){
+appData[currentUser]=createEmpty();
+}
+
 const subject=revisionSubject.value;
 const chapter=revisionChapter.value.trim();
 if(!chapter) return;
@@ -478,13 +461,12 @@ appData[currentUser].revision[subject].push({name:chapter,checks:[false,false,fa
 revisionChapter.value="";
 save();
 renderRevision();
-
 }
 
 function renderRevision(){
 
 revisionTables.innerHTML="";
-const userData=appData[currentUser];
+const userData=appData[currentUser] || createEmpty();
 
 subjects.forEach(subject=>{
 
@@ -501,7 +483,6 @@ ${ch.checks.map((val,i)=>`
 <td><input type="checkbox" ${val?"checked":""}
 onchange="toggleRevision('${subject}',${index},${i})"></td>`).join("")}
 </tr>`;
-
 });
 
 const card=document.createElement("div");
@@ -523,45 +504,36 @@ ${rows}
 `;
 
 revisionTables.appendChild(card);
-
 });
-
 }
 
-function toggleRevision(subject,index,box){
-let ch=appData[currentUser].revision[subject][index];
-ch.checks[box]=!ch.checks[box];
-save();
-}
+/******** MAKE FUNCTIONS GLOBAL ********/
 
-/******** INIT ********/
-
-onValue(ref(db, "caStudyTracker"), (snapshot)=>{
-
-if(snapshot.exists()){
-    appData = snapshot.val();
-}else{
-    appData = {
-        Swayam:createEmpty(),
-        Nishika:createEmpty()
-    };
-    save();
-}
-
-loadUser();
-
-});
-  
-  window.switchUser = switchUser;
+window.switchUser = switchUser;
 window.switchTab = switchTab;
 window.addCompletion = addCompletion;
 window.addRevision = addRevision;
 window.toggleCompletion = toggleCompletion;
 window.toggleRevision = toggleRevision;
 
+/******** INIT ********/
+
+onValue(ref(db, "caStudyTracker"), (snapshot)=>{
+
+if(snapshot.exists()){
+appData = snapshot.val();
+}else{
+appData = {
+Swayam:createEmpty(),
+Nishika:createEmpty()
+};
+save();
+}
+
+loadUser();
+});
 
 </script>
-
 
 </body>
 </html>
