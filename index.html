@@ -220,7 +220,7 @@ cursor:pointer;
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import { getDatabase, ref, set, onValue }
+import { getDatabase, ref, set, onValue, get }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
@@ -517,21 +517,36 @@ window.toggleCompletion = toggleCompletion;
 window.toggleRevision = toggleRevision;
 
 /******** INIT ********/
+async function initializeIfFirstTime(){
+
+const snapshot = await get(ref(db,"caStudyTracker"));
+
+if(!snapshot.exists()){
+
+appData = {
+    Swayam:createEmpty(),
+    Nishika:createEmpty()
+};
+
+save();
+
+}
+
+}
+
+initializeIfFirstTime();
 
 onValue(ref(db, "caStudyTracker"), (snapshot)=>{
 
-if(snapshot.exists()){
-appData = snapshot.val();
-}else{
-appData = {
-Swayam:createEmpty(),
-Nishika:createEmpty()
-};
-save();
+const data = snapshot.val();
+
+if(data){
+    appData = data;
+    loadUser();
 }
 
-loadUser();
 });
+
 
 </script>
 
