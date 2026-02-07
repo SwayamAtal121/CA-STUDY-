@@ -240,7 +240,6 @@ const db = getDatabase(app);
 
 let appData = {};
 let currentUser="Swayam";
-let isSyncing = true;
 
 function createEmpty(){
 return {
@@ -250,15 +249,13 @@ revision:{AFM:[],FR:[],DT:[],IDT:[],Audit:[]}
 };
 }
 
-/******** SAFE SAVE ********/
+/******** FIXED SAVE ********/
 
 function save(){
 
-if(isSyncing) return;
-
-// ⭐ WRITE ONLY CURRENT USER
+// ✅ write ONLY current user
 set(
-ref(db, "caStudyTracker/users/" + currentUser),
+ref(db, "caStudyTracker/" + currentUser),
 appData[currentUser]
 );
 
@@ -275,38 +272,7 @@ document.querySelectorAll(".userBtn")
 
 e.target.classList.add("active");
 
-// listen to new user
-attachListener();
-
-}
-
-/******** FIREBASE LISTENER ********/
-
-let unsubscribe;
-
-function attachListener(){
-
-if(unsubscribe) unsubscribe();
-
-isSyncing = true;
-
-const userRef = ref(db, "caStudyTracker/users/" + currentUser);
-
-unsubscribe = onValue(userRef, (snapshot)=>{
-
-if(snapshot.exists()){
-appData[currentUser] = snapshot.val();
-}else{
-appData[currentUser] = createEmpty();
-save();
-}
-
 loadUser();
-
-setTimeout(()=>{ isSyncing=false; },300);
-
-});
-
 }
 
 /******** TABS ********/
@@ -370,60 +336,47 @@ document.getElementById(`${subject}-total`).value=data.hours[subject]?.total||""
 document.getElementById(`${subject}-completed`).value=data.hours[subject]?.completed||"";
 });
 
-renderCompletion?.();
-renderRevision?.();
+renderCompletion();
+renderRevision();
 updateChart();
 }
 
-document.querySelectorAll("input")
-.forEach(i=>i.addEventListener("input",updateChart));
+/******** INIT ********/
 
-function updateChart(){
+async function initializeIfFirstTime(){
 
-if(!appData[currentUser]){
-appData[currentUser]=createEmpty();
+const snapshot = await get(ref(db,"caStudyTracker"));
+
+if(!snapshot.exists()){
+
+appData = {
+    Swayam:createEmpty(),
+    Nishika:createEmpty()
+};
+
+await set(ref(db,"caStudyTracker"), appData);
+
 }
 
-const labels=[];
-const data=[];
-const colors=[];
-
-subjects.forEach((subject,i)=>{
-
-const total=parseFloat(document.getElementById(`${subject}-total`).value)||0;
-const completed=Math.min(parseFloat(document.getElementById(`${subject}-completed`).value)||0,total);
-
-appData[currentUser].hours[subject]={total,completed};
-
-if(total>0){
-
-const remaining=total-completed;
-
-if(completed>0){
-labels.push(subject+" ✔");
-data.push(completed);
-colors.push(`rgba(${baseColors[i]},1)`);
 }
 
-if(remaining>0){
-labels.push(subject);
-data.push(remaining);
-colors.push(`rgba(${baseColors[i]},.2)`);
-}
-}
+initializeIfFirstTime();
+
+/******** LISTENER ********/
+
+onValue(ref(db, "caStudyTracker"), (snapshot)=>{
+
+const data = snapshot.val();
+
+appData = data || {};
+
+// protect missing users
+if(!appData.Swayam) appData.Swayam = createEmpty();
+if(!appData.Nishika) appData.Nishika = createEmpty();
+
+loadUser();
+
 });
-
-save();
-
-chart.data.labels=labels;
-chart.data.datasets[0].data=data;
-chart.data.datasets[0].backgroundColor=colors;
-chart.update();
-}
-
-/******** FIRST INIT ********/
-
-attachListener();
 
 </script>
 
