@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CA Study Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+    input {
+      width: 80px;
+      padding: 6px;
+      margin-left: 10px;
+    }
+    .row {
+      margin-bottom: 10px;
+    }
+    canvas {
+      max-width: 100%;
+    }
+    @media (max-width: 800px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>CA Study Tracker</h1>
+
+<div class="container">
+  <div class="card">
+    <h3>Enter Study Hours</h3>
+    <div id="inputs"></div>
+  </div>
+
+  <div class="card">
+    <h3>Completion Overview (%)</h3>
+    <canvas id="pieChart"></canvas>
+  </div>
+</div>
+
+<script>
+const subjects = ["AFM", "FR", "DT", "IDT", "Audit"];
+const inputsDiv = document.getElementById("inputs");
+
+subjects.forEach(subject => {
+  const row = document.createElement("div");
+  row.className = "row";
+
+  row.innerHTML = `
+    <strong>${subject}</strong>
+    Total <input type="number" min="0" id="${subject}-total">
+    Completed <input type="number" min="0" id="${subject}-completed">
+  `;
+
+  inputsDiv.appendChild(row);
+});
+
+const ctx = document.getElementById('pieChart');
+
+const chart = new Chart(ctx, {
+  type: 'pie',
+  data: {
+    labels: subjects,
+    datasets: [{
+      data: [0,0,0,0,0]
+    }]
+  },
+  options: {
+    responsive: true
+  }
+});
+
+document.querySelectorAll("input").forEach(input => {
+  input.addEventListener("input", updateChart);
+});
+
+function updateChart() {
+  const data = subjects.map(subject => {
+    const total = parseFloat(document.getElementById(`${subject}-total`).value) || 0;
+    const completed = parseFloat(document.getElementById(`${subject}-completed`).value) || 0;
+
+    if (total <= 0) return 0;
+    return Math.min((completed / total) * 100, 100).toFixed(1);
+  });
+
+  chart.data.datasets[0].data = data;
+  chart.update();
+}
+</script>
+
+</body>
+</html>
