@@ -105,6 +105,20 @@ color:white;
 cursor:pointer;
 }
 
+.delBtn{
+background:rgba(239, 68, 68, 0.2);
+color:#f87171;
+padding:4px 10px;
+border-radius:6px;
+font-size:12px;
+transition: 0.2s;
+}
+
+.delBtn:hover{
+background:#ef4444;
+color:white;
+}
+
 .subjectCard{
 margin-top:24px;
 padding:18px;
@@ -144,12 +158,11 @@ accent-color:#6366f1;
 cursor:pointer;
 }
 
-#saveStatus {
-text-align:center; 
-font-size:12px; 
-color:#94a3b8; 
+#saveStatus{
+text-align:center;
+font-size:12px;
+color:#94a3b8;
 margin-top:20px;
-opacity: 0.7;
 }
 
 .hidden{display:none;}
@@ -197,7 +210,7 @@ opacity: 0.7;
                     <option>IDT</option><option>Audit</option>
                 </select>
                 <input id="completionChapter" placeholder="Chapter name">
-                <button onclick="addCompletion()">Add</button>
+                <button onclick="addCompletion()">Add Chapter</button>
             </div>
             <div id="completionTables"></div>
         </div>
@@ -211,7 +224,7 @@ opacity: 0.7;
                     <option>IDT</option><option>Audit</option>
                 </select>
                 <input id="revisionChapter" placeholder="Chapter name">
-                <button onclick="addRevision()">Add</button>
+                <button onclick="addRevision()">Add Chapter</button>
             </div>
             <div id="revisionTables"></div>
         </div>
@@ -257,7 +270,7 @@ function save() {
     }
 }
 
-// ATTACH FUNCTIONS TO WINDOW FOR HTML ACCESS
+// Global functions for buttons
 window.switchUser = (e, user) => {
     currentUser = user;
     document.querySelectorAll(".userBtn").forEach(b => b.classList.remove("active"));
@@ -270,7 +283,6 @@ window.switchTab = (tab) => {
     document.getElementById('hoursTab').classList.add('hidden');
     document.getElementById('completionTab').classList.add('hidden');
     document.getElementById('revisionTab').classList.add('hidden');
-
     document.getElementById(tab + 'Tab').classList.remove('hidden');
     const tabs = document.querySelectorAll('.tab');
     if(tab==='hours') tabs[0].classList.add('active');
@@ -278,7 +290,7 @@ window.switchTab = (tab) => {
     if(tab==='revision') tabs[2].classList.add('active');
 };
 
-// HOURS LOGIC
+// Setup Hours Inputs
 const inputsDiv = document.getElementById("inputs");
 subjects.forEach(subject => {
     const row = document.createElement("div");
@@ -327,8 +339,10 @@ window.addCompletion = () => {
     const sub = document.getElementById("completionSubject").value;
     const ch = document.getElementById("completionChapter").value.trim();
     if (!ch || !appData) return;
+    
     if (!appData[currentUser].completion[sub]) appData[currentUser].completion[sub] = [];
     appData[currentUser].completion[sub].push({ name: ch, checks: [false, false, false] });
+    
     document.getElementById("completionChapter").value = "";
     save();
     renderCompletion();
@@ -339,20 +353,36 @@ window.toggleCompletion = (sub, idx, box) => {
     save();
 };
 
+window.deleteCompletion = (sub, idx) => {
+    if(confirm("Delete this chapter?")) {
+        appData[currentUser].completion[sub].splice(idx, 1);
+        save();
+        renderCompletion();
+    }
+};
+
 function renderCompletion() {
     const div = document.getElementById("completionTables");
     div.innerHTML = "";
     const userData = appData[currentUser];
     subjects.forEach(sub => {
-        const chapters = userData.completion[sub] || [];
-        if (chapters.length === 0) return;
+        const list = userData.completion[sub] || [];
+        if (list.length === 0) return;
         let rows = "";
-        chapters.forEach((c, i) => {
-            rows += `<tr><td>${c.name}</td>${c.checks.map((v, b) => `<td><input type="checkbox" ${v?"checked":""} onchange="toggleCompletion('${sub}',${i},${b})"></td>`).join("")}</tr>`;
+        list.forEach((c, i) => {
+            rows += `<tr>
+                <td>${c.name}</td>
+                ${c.checks.map((v, b) => `<td><input type="checkbox" ${v?"checked":""} onchange="toggleCompletion('${sub}',${i},${b})"></td>`).join("")}
+                <td><button class="delBtn" onclick="deleteCompletion('${sub}',${i})">Delete</button></td>
+            </tr>`;
         });
         const card = document.createElement("div");
         card.className = "subjectCard";
-        card.innerHTML = `<div class="subjectTitle">${sub}</div><table><tr><th>Chapter</th><th>Video/Read</th><th>Questions</th><th>MCQs</th></tr>${rows}</table>`;
+        card.innerHTML = `<div class="subjectTitle">${sub}</div>
+            <table>
+                <tr><th>Chapter</th><th>Lectures Done</th><th>Questions Done</th><th>MCQ's Done</th><th>Action</th></tr>
+                ${rows}
+            </table>`;
         div.appendChild(card);
     });
 }
@@ -362,8 +392,10 @@ window.addRevision = () => {
     const sub = document.getElementById("revisionSubject").value;
     const ch = document.getElementById("revisionChapter").value.trim();
     if (!ch || !appData) return;
+    
     if (!appData[currentUser].revision[sub]) appData[currentUser].revision[sub] = [];
     appData[currentUser].revision[sub].push({ name: ch, checks: [false, false, false, false, false] });
+    
     document.getElementById("revisionChapter").value = "";
     save();
     renderRevision();
@@ -374,20 +406,36 @@ window.toggleRevision = (sub, idx, box) => {
     save();
 };
 
+window.deleteRevision = (sub, idx) => {
+    if(confirm("Delete this chapter?")) {
+        appData[currentUser].revision[sub].splice(idx, 1);
+        save();
+        renderRevision();
+    }
+};
+
 function renderRevision() {
     const div = document.getElementById("revisionTables");
     div.innerHTML = "";
     const userData = appData[currentUser];
     subjects.forEach(sub => {
-        const chapters = userData.revision[sub] || [];
-        if (chapters.length === 0) return;
+        const list = userData.revision[sub] || [];
+        if (list.length === 0) return;
         let rows = "";
-        chapters.forEach((c, i) => {
-            rows += `<tr><td>${c.name}</td>${c.checks.map((v, b) => `<td><input type="checkbox" ${v?"checked":""} onchange="toggleRevision('${sub}',${i},${b})"></td>`).join("")}</tr>`;
+        list.forEach((c, i) => {
+            rows += `<tr>
+                <td>${c.name}</td>
+                ${c.checks.map((v, b) => `<td><input type="checkbox" ${v?"checked":""} onchange="toggleRevision('${sub}',${i},${b})"></td>`).join("")}
+                <td><button class="delBtn" onclick="deleteRevision('${sub}',${i})">Delete</button></td>
+            </tr>`;
         });
         const card = document.createElement("div");
         card.className = "subjectCard";
-        card.innerHTML = `<div class="subjectTitle">${sub}</div><table><tr><th>Chapter</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>R5</th></tr>${rows}</table>`;
+        card.innerHTML = `<div class="subjectTitle">${sub}</div>
+            <table>
+                <tr><th>Chapter</th><th>Rev 1</th><th>Rev 2</th><th>Rev 3</th><th>Rev 4</th><th>Rev 5</th><th>Action</th></tr>
+                ${rows}
+            </table>`;
         div.appendChild(card);
     });
 }
@@ -405,7 +453,7 @@ function loadUser() {
     updateChart(false);
 }
 
-// FIREBASE SYNC
+// Sync with Firebase
 onValue(ref(db, "caStudyTracker"), (snap) => {
     const data = snap.val();
     if (data) {
