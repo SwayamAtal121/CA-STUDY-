@@ -43,96 +43,45 @@
 /* --- CSS STYLING --- */
 *{box-sizing:border-box; transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;}
 
-body{
-    font-family:'Inter',sans-serif;
-    margin:0;
-    background:var(--bg-gradient);
-    color:var(--text-main);
-    min-height: 100vh;
-}
-
-.app{
-    max-width:1350px;
-    margin:auto;
-    padding:30px 18px;
-}
+body{ font-family:'Inter',sans-serif; margin:0; background:var(--bg-gradient); color:var(--text-main); min-height: 100vh; }
+.app{ max-width:1350px; margin:auto; padding:30px 18px; }
 
 /* HEADER & THEME TOGGLE */
 .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 h1{ margin: 0; font-size: 28px; font-weight: 700; background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; color: transparent; }
-
-.theme-toggle {
-    background: var(--card-bg); border: 1px solid var(--card-border); padding: 10px;
-    border-radius: 50%; cursor: pointer; font-size: 20px; backdrop-filter: blur(10px);
-    box-shadow: var(--shadow); color: var(--text-main);
-}
+.theme-toggle { background: var(--card-bg); border: 1px solid var(--card-border); padding: 10px; border-radius: 50%; cursor: pointer; font-size: 20px; backdrop-filter: blur(10px); box-shadow: var(--shadow); color: var(--text-main); }
 .theme-toggle:hover { transform: scale(1.1); }
 
 /* USER SWITCH */
 .userSwitch{ display:flex; justify-content:center; gap:14px; margin-bottom:24px; }
-
-.userBtn{
-    padding:10px 28px; border-radius:999px; cursor:pointer;
-    background:var(--tab-bg); border: 1px solid var(--card-border); font-weight: 500;
-}
+.userBtn{ padding:10px 28px; border-radius:999px; cursor:pointer; background:var(--tab-bg); border: 1px solid var(--card-border); font-weight: 500; }
 .userBtn:hover{ background:var(--tab-hover); }
-.userBtn.active{
-    background: linear-gradient(135deg, #10b981, #059669); color: white;
-    border-color: transparent; font-weight: 600; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
-}
+.userBtn.active{ background: linear-gradient(135deg, #10b981, #059669); color: white; border-color: transparent; font-weight: 600; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); }
 
 /* TABS */
 .tabs{ display:flex; justify-content:center; gap:12px; margin-bottom:30px; flex-wrap:wrap; }
-
-.tab{
-    padding:10px 24px; border-radius:999px; cursor:pointer;
-    background:var(--tab-bg); border: 1px solid var(--card-border); font-weight: 500;
-}
+.tab{ padding:10px 24px; border-radius:999px; cursor:pointer; background:var(--tab-bg); border: 1px solid var(--card-border); font-weight: 500; }
 .tab:hover{ background:var(--tab-hover); }
-.tab.active{
-    background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;
-    border-color: transparent; font-weight: 600; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
-}
+.tab.active{ background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-color: transparent; font-weight: 600; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
 
 /* LAYOUT */
 .container{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
-
-.card{
-    background:var(--card-bg); padding:28px; border-radius:24px;
-    backdrop-filter:blur(20px); border: 1px solid var(--card-border); box-shadow: var(--shadow);
-}
+.card{ background:var(--card-bg); padding:24px; border-radius:24px; backdrop-filter:blur(20px); border: 1px solid var(--card-border); box-shadow: var(--shadow); }
 .card h3 { margin-top: 0; margin-bottom: 20px; color: var(--text-main); font-weight: 600; }
 
-.row{
-    display:flex; justify-content:space-between; align-items:center;
-    padding:14px; border-radius:14px; margin-bottom:12px;
-    background:var(--row-bg); border: 1px solid var(--card-border);
-}
+.row{ display:flex; justify-content:space-between; align-items:center; padding:14px; border-radius:14px; margin-bottom:12px; background:var(--row-bg); border: 1px solid var(--card-border); }
 .row span { font-weight: 500; }
-
 .inputGroup{display:flex;gap:10px;}
 
-input,select{
-    padding:12px; border-radius:12px; border:1px solid var(--input-border);
-    background:var(--input-bg); color:var(--text-main); outline: none; font-family: inherit;
-}
+input,select{ padding:12px; border-radius:12px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); outline: none; font-family: inherit; }
 input:focus, select:focus { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
 
-button{
-    border:none; padding:12px 24px; border-radius:12px; background: linear-gradient(135deg, #6366f1, #4f46e5);
-    color:white; cursor:pointer; font-weight: 600; font-family: inherit; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
+button{ border:none; padding:12px 24px; border-radius:12px; background: linear-gradient(135deg, #6366f1, #4f46e5); color:white; cursor:pointer; font-weight: 600; font-family: inherit; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
 button:hover{ transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); }
 
-/* TABLE & LIST STYLES */
-.subjectCard{
-    margin-top:24px; padding:20px; border-radius:20px;
-    background:var(--row-bg); border: 1px solid var(--card-border); overflow-x:auto;
-}
-.subjectTitle{
-    font-weight:700; margin-bottom:16px; font-size:20px;
-    color:#6366f1; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;
-}
+/* TABLES */
+.subjectCard{ margin-top:24px; padding:20px; border-radius:20px; background:var(--row-bg); border: 1px solid var(--card-border); overflow-x:auto; }
+.subjectTitle{ font-weight:700; margin-bottom:16px; font-size:20px; color:#6366f1; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; }
 table{ width:100%; min-width:650px; border-collapse:separate; border-spacing:0 6px; }
 tr{ background:var(--card-bg); border-radius: 10px; }
 tr:hover{ background:var(--row-hover); }
@@ -142,37 +91,24 @@ td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px;
 th{ color:var(--text-muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
 
 input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:pointer; }
-
-.delBtn{
-    background:rgba(239, 68, 68, 0.1); color:#ef4444; padding:8px 14px;
-    border-radius:8px; font-size:13px; box-shadow: none; font-weight: 600;
-}
+.delBtn{ background:rgba(239, 68, 68, 0.1); color:#ef4444; padding:8px 14px; border-radius:8px; font-size:13px; box-shadow: none; font-weight: 600; }
 .delBtn:hover{ background:#ef4444; color:white; transform: none; box-shadow: 0 4px 10px rgba(239,68,68,0.3); }
 
-#saveStatus{
-    text-align:center; font-size:14px; font-weight: 500; color:var(--text-muted);
-    margin-top:40px; font-family: monospace; padding: 10px; background: var(--card-bg);
-    border-radius: 10px; width: max-content; margin-left: auto; margin-right: auto;
-}
+#saveStatus{ text-align:center; font-size:14px; font-weight: 500; color:var(--text-muted); margin-top:40px; font-family: monospace; padding: 10px; background: var(--card-bg); border-radius: 10px; width: max-content; margin-left: auto; margin-right: auto; }
 .hidden{display:none;}
 
 /* ================= DAY TRACKER & CALENDAR STYLES ================= */
 .summary-cards { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
-.sum-card { 
-    flex: 1; min-width: 120px; background: var(--card-bg); padding: 20px; border-radius: 20px; 
-    text-align: center; border: 1px solid var(--card-border); backdrop-filter: blur(14px); box-shadow: var(--shadow);
-}
+.sum-card { flex: 1; min-width: 120px; background: var(--card-bg); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid var(--card-border); backdrop-filter: blur(14px); box-shadow: var(--shadow); }
 .sum-card h4 { margin: 0 0 8px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
 .sum-card span { font-size: 32px; font-weight: 700; }
 
-.status-btn {
-    width: 100%; padding: 10px; border-radius: 10px; cursor: pointer; text-align: center;
-    font-weight: 600; user-select: none; border: 1px solid transparent; font-size: 14px;
-}
+.status-btn { width: 100%; padding: 10px; border-radius: 10px; cursor: pointer; text-align: center; font-weight: 600; user-select: none; border: 1px solid transparent; font-size: 14px; }
 .status-0 { background: var(--input-bg); color: var(--text-muted); border-color: var(--input-border); }
 .status-1 { background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.4); }
 .status-2 { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); }
 .status-3 { background: rgba(239, 68, 68, 0.15); color: #ef4444; border-color: rgba(239, 68, 68, 0.4); }
+.status-auto { background: rgba(99, 102, 241, 0.1); color: #6366f1; border-color: rgba(99, 102, 241, 0.3); cursor: default; }
 
 .comment-input { width: 100%; display: none; margin: 0; background: var(--input-bg); }
 .comment-input.show { display: block; animation: fadeIn 0.3s ease; }
@@ -180,20 +116,22 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
 
 /* CALENDAR SPECIFIC */
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
-.cal-day-header { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; padding-bottom: 8px;}
-.cal-day { 
-    aspect-ratio: 1; display: flex; align-items: center; justify-content: center; 
-    border-radius: 12px; font-size: 14px; font-weight: 600; 
-    background: var(--input-bg); border: 1px solid var(--card-border); color: var(--text-main);
-}
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
+.cal-day-header { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; padding-bottom: 6px;}
+.cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 13px; font-weight: 600; background: var(--input-bg); border: 1px solid var(--card-border); color: var(--text-main); }
 .cal-day.empty { background: transparent; border: none; }
 .cal-day.status-1 { background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981; box-shadow: inset 0 0 10px rgba(16,185,129,0.2);}
 .cal-day.status-2 { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border-color: #f59e0b; box-shadow: inset 0 0 10px rgba(245,158,11,0.2);}
 .cal-day.status-3 { background: rgba(239, 68, 68, 0.2); color: #ef4444; border-color: #ef4444; box-shadow: inset 0 0 10px rgba(239,68,68,0.2);}
 .cal-day.today { border: 2px solid #6366f1; }
-.cal-nav-btn { background: var(--input-bg); color: var(--text-main); padding: 8px 14px; box-shadow: none; border: 1px solid var(--input-border); }
+.cal-nav-btn { background: var(--input-bg); color: var(--text-main); padding: 6px 12px; box-shadow: none; border: 1px solid var(--input-border); }
 .cal-nav-btn:hover { background: var(--row-hover); transform: none; box-shadow: none; }
+
+/* CHECKLIST SPECIFIC */
+.todo-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--row-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 8px; }
+.todo-item.done { opacity: 0.6; background: var(--card-bg); }
+.todo-item.done .todo-text { text-decoration: line-through; color: var(--text-muted); }
+.todo-text { font-weight: 500; font-size: 14px; flex-grow: 1; margin: 0 12px; }
 
 @media(max-width:900px){ .container{grid-template-columns:1fr;} }
 </style>
@@ -203,7 +141,8 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
 
 <div class="app">
     <div class="header-container">
-        <div style="width: 44px;"></div> <h1>📘 CA Study Tracker</h1>
+        <div style="width: 44px;"></div>
+        <h1>📘 CA Study Tracker</h1>
         <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" id="themeIcon">☀️</button>
     </div>
 
@@ -221,15 +160,10 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
 
     <div id="hoursTab">
         <div class="container">
-            <div class="card">
-                <h3>Enter Study Hours</h3>
-                <div id="inputs"></div>
-            </div>
+            <div class="card"><h3>Enter Study Hours</h3><div id="inputs"></div></div>
             <div class="card" style="display: flex; flex-direction: column; align-items: center;">
                 <h3 style="align-self: flex-start;">Study Distribution</h3>
-                <div style="width: 100%; max-width: 400px;">
-                    <canvas id="pieChart"></canvas>
-                </div>
+                <div style="width: 100%; max-width: 400px;"><canvas id="pieChart"></canvas></div>
             </div>
         </div>
     </div>
@@ -238,13 +172,7 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
         <div class="card">
             <h3>Add New Chapter</h3>
             <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
-                <select id="completionSubject" style="min-width:120px;">
-                    <option>AFM</option>
-                    <option>FR</option>
-                    <option>DT</option>
-                    <option>IDT</option>
-                    <option>Audit</option>
-                </select>
+                <select id="completionSubject" style="min-width:120px;"><option>AFM</option><option>FR</option><option>DT</option><option>IDT</option><option>Audit</option></select>
                 <input id="completionChapter" placeholder="Enter Chapter Name..." style="flex-grow:1;">
                 <button onclick="addCompletion()">+ Add Chapter</button>
             </div>
@@ -256,13 +184,7 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
         <div class="card">
             <h3>Add New Chapter for Revision</h3>
             <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
-                <select id="revisionSubject" style="min-width:120px;">
-                    <option>AFM</option>
-                    <option>FR</option>
-                    <option>DT</option>
-                    <option>IDT</option>
-                    <option>Audit</option>
-                </select>
+                <select id="revisionSubject" style="min-width:120px;"><option>AFM</option><option>FR</option><option>DT</option><option>IDT</option><option>Audit</option></select>
                 <input id="revisionChapter" placeholder="Enter Chapter Name..." style="flex-grow:1;">
                 <button onclick="addRevision()">+ Add Chapter</button>
             </div>
@@ -273,10 +195,10 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
     <div id="dayTrackerTab" class="hidden">
         <div class="summary-cards" id="trackerSummary"></div>
 
-        <div class="container" style="margin-bottom: 24px;">
-            <div class="card">
+        <div class="container" style="margin-bottom: 24px; align-items: start; grid-template-columns: 1fr 1.2fr;">
+            <div class="card" style="padding: 20px;">
                 <div class="calendar-header">
-                    <h3 style="margin: 0;" id="calMonthYear">📅 Monthly Calendar</h3>
+                    <h3 style="margin: 0; font-size: 16px;" id="calMonthYear">📅 Calendar</h3>
                     <div style="display:flex; gap: 8px;">
                         <button class="cal-nav-btn" onclick="changeMonth(-1)">&lt;</button>
                         <button class="cal-nav-btn" onclick="changeMonth(1)">&gt;</button>
@@ -285,25 +207,43 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
                 <div class="calendar-grid" id="calendarGrid"></div>
             </div>
 
-            <div class="card">
+            <div class="card" style="padding: 20px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <h3 style="margin: 0;">📝 Daily Log</h3>
-                    <button onclick="addDayEntry()" style="background: linear-gradient(135deg, #10b981, #059669);">+ Add Today</button>
+                    <h3 style="margin: 0;">🎯 Today's Targets</h3>
+                    <span id="checklistDate" style="font-size: 13px; color: var(--text-muted); font-weight: 600;"></span>
                 </div>
                 
-                <div class="subjectCard" style="margin-top:0; padding:10px;">
-                    <table style="min-width: 100%;">
-                        <thead>
-                            <tr>
-                                <th width="25%">Date</th>
-                                <th width="25%">Status</th>
-                                <th width="40%">Reason</th>
-                                <th width="10%">Del</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dayTrackerBody"></tbody>
-                    </table>
+                <div style="display:flex; gap:10px; margin-bottom: 16px;">
+                    <input id="newTodoInput" placeholder="E.g., Revise AFM Chap 2..." style="flex-grow:1;" onkeypress="if(event.key==='Enter') addTodo()">
+                    <button onclick="addTodo()" style="padding: 12px 18px;">Add</button>
                 </div>
+
+                <div id="todoList" style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                    </div>
+                <div id="emptyTodoMsg" style="text-align: center; color: var(--text-muted); padding: 20px 0; font-size: 14px;">
+                    Add a task to start automating today's progress!
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="margin: 0;">📝 Historical Log</h3>
+                <button onclick="addDayEntry()" style="background: linear-gradient(135deg, #10b981, #059669); padding: 10px 16px; font-size: 13px;">+ Manual Log Today</button>
+            </div>
+            
+            <div class="subjectCard" style="margin-top:0; padding:10px;">
+                <table style="min-width: 100%;">
+                    <thead>
+                        <tr>
+                            <th width="20%">Date</th>
+                            <th width="25%">Status</th>
+                            <th width="45%">Reason (If Missed)</th>
+                            <th width="10%">Del</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dayTrackerBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -330,8 +270,14 @@ const db = getDatabase(app);
 
 let appData = null;
 let currentUser = "Swayam";
-let currentCalDate = new Date(); // Tracks the currently viewed month in the calendar
+let currentCalDate = new Date(); 
 const subjects = ["AFM", "FR", "DT", "IDT", "Audit"];
+
+// Helper to get formatted date string for today
+function getTodayStr() {
+    const d = new Date();
+    return `${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}, ${d.toLocaleDateString('en-GB', { weekday: 'short' })}`;
+}
 
 // ================= THEME LOGIC =================
 window.toggleTheme = () => {
@@ -365,14 +311,13 @@ function save() {
         set(ref(db, "caStudyTracker"), appData).then(() => {
             document.getElementById("saveStatus").innerText = "✔ Data Synced: " + new Date().toLocaleTimeString();
             document.getElementById("saveStatus").style.color = "#10b981";
-        }).catch((e) => {
+        }).catch(() => {
              document.getElementById("saveStatus").innerText = "❌ Sync Error";
              document.getElementById("saveStatus").style.color = "#ef4444";
         });
     }
 }
 
-// ================= GLOBAL WINDOW FUNCTIONS =================
 window.switchUser = (e, user) => {
     currentUser = user;
     document.querySelectorAll(".userBtn").forEach(b => b.classList.remove("active"));
@@ -387,7 +332,6 @@ window.switchTab = (tab) => {
     document.getElementById('revisionTab').classList.add('hidden');
     document.getElementById('dayTrackerTab').classList.add('hidden');
     document.getElementById(tab + 'Tab').classList.remove('hidden');
-    
     const tabs = document.querySelectorAll('.tab');
     if(tab==='hours') tabs[0].classList.add('active');
     if(tab==='completion') tabs[1].classList.add('active');
@@ -399,16 +343,12 @@ window.switchTab = (tab) => {
 const inputsDiv = document.getElementById("inputs");
 subjects.forEach(subject => {
     const row = document.createElement("div"); row.className = "row";
-    row.innerHTML = `<span>${subject}</span><div class="inputGroup">
-        <input type="number" placeholder="Total" id="${subject}-total" style="width: 100px;">
-        <input type="number" placeholder="Done" id="${subject}-completed" style="width: 100px;">
-    </div>`;
+    row.innerHTML = `<span>${subject}</span><div class="inputGroup"><input type="number" placeholder="Total" id="${subject}-total" style="width: 100px;"><input type="number" placeholder="Done" id="${subject}-completed" style="width: 100px;"></div>`;
     inputsDiv.appendChild(row);
 });
 
 window.myPieChart = new Chart(document.getElementById('pieChart'), {
-    type: 'doughnut',
-    data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 0, hoverOffset: 4 }] },
+    type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 0, hoverOffset: 4 }] },
     options: { plugins: { legend: { position: 'bottom', labels: { padding: 20, font: { family: 'Inter', size: 13, weight: '500' }, color: savedTheme === 'dark' ? '#f8fafc' : '#0f172a' } } }, cutout: "70%", layout: { padding: 10 } }
 });
 
@@ -422,152 +362,181 @@ function updateChart(shouldSave = true) {
         const completed = Math.min(parseFloat(document.getElementById(`${subject}-completed`).value) || 0, total);
         if (!appData[currentUser].hours) appData[currentUser].hours = {};
         appData[currentUser].hours[subject] = { total, completed };
-
         if (total > 0) {
             const rem = total - completed;
             if (completed > 0) { labels.push(subject + " ✔"); data.push(completed); colors.push(`rgba(${baseColors[i]}, 1)`); }
             if (rem > 0) { labels.push(subject); data.push(rem); colors.push(`rgba(${baseColors[i]}, 0.25)`); }
         }
     });
-
     window.myPieChart.data.labels = labels; window.myPieChart.data.datasets[0].data = data; window.myPieChart.data.datasets[0].backgroundColor = colors;
     window.myPieChart.update();
     if (shouldSave) save();
 }
-
 document.querySelectorAll("#inputs input").forEach(i => i.addEventListener("input", () => updateChart(true)));
 
-// ================= COMPLETION LOGIC =================
-window.addCompletion = () => {
-    const sub = document.getElementById("completionSubject").value;
-    const chName = document.getElementById("completionChapter").value.trim();
-    if (!chName) { alert("Please enter a chapter name"); return; }
-    if (!appData) return;
-    if(!appData[currentUser].completion[sub]) appData[currentUser].completion[sub] = [];
-    appData[currentUser].completion[sub].push({ name: chName, checks: [false, false, false] });
-    document.getElementById("completionChapter").value = ""; save(); renderCompletion();
-};
+// ================= COMPLETION & REVISION LOGIC (Unchanged) =================
+window.addCompletion = () => { const sub = document.getElementById("completionSubject").value; const chName = document.getElementById("completionChapter").value.trim(); if (!chName || !appData) return; if(!appData[currentUser].completion[sub]) appData[currentUser].completion[sub] = []; appData[currentUser].completion[sub].push({ name: chName, checks: [false, false, false] }); document.getElementById("completionChapter").value = ""; save(); renderCompletion(); };
 window.toggleCompletion = (sub, idx, box) => { appData[currentUser].completion[sub][idx].checks[box] = !appData[currentUser].completion[sub][idx].checks[box]; save(); };
 window.deleteCompletion = (sub, idx) => { if(confirm("Delete this chapter?")) { appData[currentUser].completion[sub].splice(idx, 1); save(); renderCompletion(); } };
+function renderCompletion() { const tableContainer = document.getElementById("completionTables"); tableContainer.innerHTML = ""; subjects.forEach(sub => { const list = appData[currentUser].completion[sub] || []; if (list.length > 0) { let rows = list.map((c, i) => `<tr><td>${c.name}</td><td><input type="checkbox" ${c.checks[0]?"checked":""} onchange="toggleCompletion('${sub}',${i},0)"></td><td><input type="checkbox" ${c.checks[1]?"checked":""} onchange="toggleCompletion('${sub}',${i},1)"></td><td><input type="checkbox" ${c.checks[2]?"checked":""} onchange="toggleCompletion('${sub}',${i},2)"></td><td><button class="delBtn" onclick="deleteCompletion('${sub}',${i})">X</button></td></tr>`).join(""); const card = document.createElement("div"); card.className = "subjectCard"; card.innerHTML = `<div class="subjectTitle">${sub}</div><table><tr><th width="40%">Chapter Name</th><th width="15%">Lectures</th><th width="15%">Questions</th><th width="15%">MCQs</th><th width="15%">Del</th></tr>${rows}</table>`; tableContainer.appendChild(card); } }); }
 
-function renderCompletion() {
-    const tableContainer = document.getElementById("completionTables"); tableContainer.innerHTML = "";
-    subjects.forEach(sub => {
-        const list = appData[currentUser].completion[sub] || [];
-        if (list.length > 0) {
-            let rows = list.map((c, i) => `<tr><td>${c.name}</td><td><input type="checkbox" ${c.checks[0]?"checked":""} onchange="toggleCompletion('${sub}',${i},0)"></td><td><input type="checkbox" ${c.checks[1]?"checked":""} onchange="toggleCompletion('${sub}',${i},1)"></td><td><input type="checkbox" ${c.checks[2]?"checked":""} onchange="toggleCompletion('${sub}',${i},2)"></td><td><button class="delBtn" onclick="deleteCompletion('${sub}',${i})">X</button></td></tr>`).join("");
-            const card = document.createElement("div"); card.className = "subjectCard";
-            card.innerHTML = `<div class="subjectTitle">${sub}</div><table><tr><th width="40%">Chapter Name</th><th width="15%">Lectures</th><th width="15%">Questions</th><th width="15%">MCQs</th><th width="15%">Del</th></tr>${rows}</table>`;
-            tableContainer.appendChild(card);
-        }
-    });
-}
-
-// ================= REVISION LOGIC =================
-window.addRevision = () => {
-    const sub = document.getElementById("revisionSubject").value;
-    const chName = document.getElementById("revisionChapter").value.trim();
-    if (!chName) { alert("Please enter a chapter name"); return; }
-    if (!appData) return;
-    if(!appData[currentUser].revision[sub]) appData[currentUser].revision[sub] = [];
-    appData[currentUser].revision[sub].push({ name: chName, checks: [false, false, false, false, false] });
-    document.getElementById("revisionChapter").value = ""; save(); renderRevision();
-};
+window.addRevision = () => { const sub = document.getElementById("revisionSubject").value; const chName = document.getElementById("revisionChapter").value.trim(); if (!chName || !appData) return; if(!appData[currentUser].revision[sub]) appData[currentUser].revision[sub] = []; appData[currentUser].revision[sub].push({ name: chName, checks: [false, false, false, false, false] }); document.getElementById("revisionChapter").value = ""; save(); renderRevision(); };
 window.toggleRevision = (sub, idx, box) => { appData[currentUser].revision[sub][idx].checks[box] = !appData[currentUser].revision[sub][idx].checks[box]; save(); };
 window.deleteRevision = (sub, idx) => { if(confirm("Delete this revision entry?")) { appData[currentUser].revision[sub].splice(idx, 1); save(); renderRevision(); } };
+function renderRevision() { const tableContainer = document.getElementById("revisionTables"); tableContainer.innerHTML = ""; subjects.forEach(sub => { const list = appData[currentUser].revision[sub] || []; if (list.length > 0) { let rows = list.map((c, i) => `<tr><td>${c.name}</td><td><input type="checkbox" ${c.checks[0]?"checked":""} onchange="toggleRevision('${sub}',${i},0)"></td><td><input type="checkbox" ${c.checks[1]?"checked":""} onchange="toggleRevision('${sub}',${i},1)"></td><td><input type="checkbox" ${c.checks[2]?"checked":""} onchange="toggleRevision('${sub}',${i},2)"></td><td><input type="checkbox" ${c.checks[3]?"checked":""} onchange="toggleRevision('${sub}',${i},3)"></td><td><input type="checkbox" ${c.checks[4]?"checked":""} onchange="toggleRevision('${sub}',${i},4)"></td><td><button class="delBtn" onclick="deleteRevision('${sub}',${i})">X</button></td></tr>`).join(""); const card = document.createElement("div"); card.className = "subjectCard"; card.innerHTML = `<div class="subjectTitle">${sub}</div><table><tr><th width="30%">Chapter</th><th width="10%">Rev 1</th><th width="10%">Rev 2</th><th width="10%">Rev 3</th><th width="10%">Rev 4</th><th width="10%">Rev 5</th><th width="10%">Del</th></tr>${rows}</table>`; tableContainer.appendChild(card); } }); }
 
-function renderRevision() {
-    const tableContainer = document.getElementById("revisionTables"); tableContainer.innerHTML = "";
-    subjects.forEach(sub => {
-        const list = appData[currentUser].revision[sub] || [];
-        if (list.length > 0) {
-            let rows = list.map((c, i) => `<tr><td>${c.name}</td><td><input type="checkbox" ${c.checks[0]?"checked":""} onchange="toggleRevision('${sub}',${i},0)"></td><td><input type="checkbox" ${c.checks[1]?"checked":""} onchange="toggleRevision('${sub}',${i},1)"></td><td><input type="checkbox" ${c.checks[2]?"checked":""} onchange="toggleRevision('${sub}',${i},2)"></td><td><input type="checkbox" ${c.checks[3]?"checked":""} onchange="toggleRevision('${sub}',${i},3)"></td><td><input type="checkbox" ${c.checks[4]?"checked":""} onchange="toggleRevision('${sub}',${i},4)"></td><td><button class="delBtn" onclick="deleteRevision('${sub}',${i})">X</button></td></tr>`).join("");
-            const card = document.createElement("div"); card.className = "subjectCard";
-            card.innerHTML = `<div class="subjectTitle">${sub}</div><table><tr><th width="30%">Chapter</th><th width="10%">Rev 1</th><th width="10%">Rev 2</th><th width="10%">Rev 3</th><th width="10%">Rev 4</th><th width="10%">Rev 5</th><th width="10%">Del</th></tr>${rows}</table>`;
-            tableContainer.appendChild(card);
+
+// ================= NEW: SMART AUTOMATION LOGIC =================
+function evaluateAllStatuses() {
+    if (!appData) return;
+    const todayStr = getTodayStr();
+    let madeChanges = false;
+
+    appData[currentUser].dayTracker.forEach(entry => {
+        if (entry.tasks && entry.tasks.length > 0) {
+            const total = entry.tasks.length;
+            const done = entry.tasks.filter(t => t.done).length;
+            let calculatedStatus = entry.status;
+
+            if (entry.date === todayStr) {
+                // Today's rules
+                if (done === 0) calculatedStatus = 0; // Grey
+                else if (done === total) calculatedStatus = 1; // Green
+                else calculatedStatus = 2; // Yellow
+            } else {
+                // Past days brutal rules: If not 100%, it's Red.
+                if (done === total) calculatedStatus = 1; // Green
+                else calculatedStatus = 3; // Red missed
+            }
+
+            if (entry.status !== calculatedStatus) {
+                entry.status = calculatedStatus;
+                madeChanges = true;
+            }
         }
     });
+    
+    if (madeChanges) save();
+}
+
+// ================= CHECKLIST LOGIC =================
+function getOrCreateTodayEntry() {
+    const todayStr = getTodayStr();
+    if (!appData[currentUser].dayTracker) appData[currentUser].dayTracker = [];
+    
+    let entry = appData[currentUser].dayTracker.find(d => d.date === todayStr);
+    if (!entry) {
+        entry = { date: todayStr, status: 0, comment: "", tasks: [] };
+        appData[currentUser].dayTracker.unshift(entry);
+    }
+    if (!entry.tasks) entry.tasks = []; // safety
+    return entry;
+}
+
+window.addTodo = () => {
+    const input = document.getElementById('newTodoInput');
+    const text = input.value.trim();
+    if(!text) return;
+
+    const entry = getOrCreateTodayEntry();
+    entry.tasks.push({ text: text, done: false });
+    input.value = "";
+    
+    evaluateAllStatuses();
+    save(); renderDayTracker(); renderCalendar(); renderChecklist();
+};
+
+window.toggleTodo = (index) => {
+    const entry = getOrCreateTodayEntry();
+    entry.tasks[index].done = !entry.tasks[index].done;
+    
+    evaluateAllStatuses();
+    save(); renderDayTracker(); renderCalendar(); renderChecklist();
+};
+
+window.deleteTodo = (index) => {
+    const entry = getOrCreateTodayEntry();
+    entry.tasks.splice(index, 1);
+    
+    evaluateAllStatuses();
+    save(); renderDayTracker(); renderCalendar(); renderChecklist();
+};
+
+function renderChecklist() {
+    const todayStr = getTodayStr();
+    document.getElementById('checklistDate').innerText = todayStr;
+    const listDiv = document.getElementById('todoList');
+    const emptyMsg = document.getElementById('emptyTodoMsg');
+    
+    if (!appData || !appData[currentUser].dayTracker) return;
+    const entry = appData[currentUser].dayTracker.find(d => d.date === todayStr);
+    
+    if (!entry || !entry.tasks || entry.tasks.length === 0) {
+        listDiv.innerHTML = "";
+        emptyMsg.style.display = "block";
+        return;
+    }
+
+    emptyMsg.style.display = "none";
+    listDiv.innerHTML = entry.tasks.map((task, i) => `
+        <div class="todo-item ${task.done ? 'done' : ''}">
+            <input type="checkbox" class="todo-checkbox" ${task.done ? 'checked' : ''} onchange="toggleTodo(${i})">
+            <span class="todo-text">${task.text}</span>
+            <button class="delBtn" style="padding: 4px 8px;" onclick="deleteTodo(${i})">X</button>
+        </div>
+    `).join("");
 }
 
 // ================= DAY TRACKER & CALENDAR LOGIC =================
-
-window.changeMonth = (direction) => {
-    currentCalDate.setMonth(currentCalDate.getMonth() + direction);
-    renderCalendar();
-};
+window.changeMonth = (direction) => { currentCalDate.setMonth(currentCalDate.getMonth() + direction); renderCalendar(); };
 
 window.renderCalendar = () => {
     if (!appData) return;
     const grid = document.getElementById("calendarGrid");
-    const monthYearLabel = document.getElementById("calMonthYear");
-    
-    const year = currentCalDate.getFullYear();
-    const month = currentCalDate.getMonth();
-    
-    // Update Header Label
-    monthYearLabel.innerText = currentCalDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+    const year = currentCalDate.getFullYear(); const month = currentCalDate.getMonth();
+    document.getElementById("calMonthYear").innerText = currentCalDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
     const monthShort = currentCalDate.toLocaleDateString('en-GB', { month: 'short' });
     
-    const firstDay = new Date(year, month, 1).getDay(); // 0(Sun) to 6(Sat)
+    const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     
-    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    let html = daysOfWeek.map(d => `<div class="cal-day-header">${d}</div>`).join("");
-    
-    // Empty slots for previous month
+    let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="cal-day-header">${d}</div>`).join("");
     for(let i = 0; i < firstDay; i++) { html += `<div class="cal-day empty"></div>`; }
     
     const trackerData = appData[currentUser].dayTracker || [];
     const todayDate = new Date();
     
-    // Fill Days
     for(let i = 1; i <= daysInMonth; i++) {
-        const dayString = String(i).padStart(2, '0');
-        const searchStr = `${dayString} ${monthShort}`; // E.g., "21 Feb"
-        
+        const searchStr = `${String(i).padStart(2, '0')} ${monthShort}`; 
         let statusClass = "";
         const entry = trackerData.find(e => e.date.startsWith(searchStr));
-        
         if (entry) {
             if (entry.status === 1) statusClass = "status-1";
             else if (entry.status === 2) statusClass = "status-2";
             else if (entry.status === 3) statusClass = "status-3";
         }
-        
-        let todayClass = "";
-        if (todayDate.getDate() === i && todayDate.getMonth() === month && todayDate.getFullYear() === year) {
-            todayClass = "today";
-        }
-        
+        let todayClass = (todayDate.getDate() === i && todayDate.getMonth() === month && todayDate.getFullYear() === year) ? "today" : "";
         html += `<div class="cal-day ${statusClass} ${todayClass}">${i}</div>`;
     }
-    
     grid.innerHTML = html;
 };
 
-window.addDayEntry = () => {
-    const dateObj = new Date();
-    const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-    const dayStr = dateObj.toLocaleDateString('en-GB', { weekday: 'short' });
-    const fullStr = `${dateStr}, ${dayStr}`;
-    if (!appData[currentUser].dayTracker) appData[currentUser].dayTracker = [];
-    const exists = appData[currentUser].dayTracker.find(d => d.date === fullStr);
-    if (exists) { alert("Today is already logged!"); return; }
-    appData[currentUser].dayTracker.unshift({ date: fullStr, status: 0, comment: "" }); 
-    save(); renderDayTracker(); renderCalendar();
-};
+// Kept for backward compatibility if user just wants to log a blank day
+window.addDayEntry = () => { getOrCreateTodayEntry(); save(); renderDayTracker(); renderCalendar(); };
 
 window.cycleStatus = (idx) => {
-    let current = appData[currentUser].dayTracker[idx].status;
+    const entry = appData[currentUser].dayTracker[idx];
+    if (entry.tasks && entry.tasks.length > 0) return; // Prevent manual click if tracking via checklist
+
+    let current = entry.status;
     current = (current + 1) % 4; 
-    appData[currentUser].dayTracker[idx].status = current;
-    if (current !== 3) { appData[currentUser].dayTracker[idx].comment = ""; }
+    entry.status = current;
+    if (current !== 3) { entry.comment = ""; }
     save(); renderDayTracker(); renderCalendar();
 };
 
-// FIX: This now uses onchange in the HTML so typing isn't interrupted!
 window.updateComment = (idx, val) => { appData[currentUser].dayTracker[idx].comment = val; save(); };
-window.deleteDayEntry = (idx) => { if(confirm("Delete this day's entry?")) { appData[currentUser].dayTracker.splice(idx, 1); save(); renderDayTracker(); renderCalendar(); } };
+window.deleteDayEntry = (idx) => { if(confirm("Delete this historical entry?")) { appData[currentUser].dayTracker.splice(idx, 1); save(); renderDayTracker(); renderCalendar(); renderChecklist(); } };
 
 window.renderDayTracker = () => {
     if (!appData) return;
@@ -580,17 +549,23 @@ window.renderDayTracker = () => {
         if(entry.status === 2) yellows++;
         if(entry.status === 3) reds++;
 
+        const isAuto = entry.tasks && entry.tasks.length > 0;
         let statusText = "Click to Set";
         if(entry.status === 1) statusText = "✔ Achieved";
         if(entry.status === 2) statusText = "➖ 50%";
         if(entry.status === 3) statusText = "❌ Missed";
+        
+        // Show slightly different button if it's automated by checklist
+        let btnHTML = `<div class="status-btn status-${entry.status}" onclick="cycleStatus(${idx})">${statusText}</div>`;
+        if (isAuto) {
+            btnHTML = `<div class="status-btn status-${entry.status} status-auto" title="Status automated by checklist">${statusText} ⚡</div>`;
+        }
 
-        // IMPORTANT FIX: onchange is used below instead of oninput
         html += `
             <tr>
-                <td style="font-size: 14px;">${entry.date}</td>
-                <td><div class="status-btn status-${entry.status}" onclick="cycleStatus(${idx})">${statusText}</div></td>
-                <td><input type="text" class="comment-input ${entry.status === 3 ? 'show' : ''}" placeholder="Why did you miss today's target?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)"></td>
+                <td style="font-size: 13px;">${entry.date}</td>
+                <td>${btnHTML}</td>
+                <td><input type="text" class="comment-input ${entry.status === 3 ? 'show' : ''}" placeholder="Why did you miss your targets?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)"></td>
                 <td><button class="delBtn" onclick="deleteDayEntry(${idx})">X</button></td>
             </tr>`;
     });
@@ -622,7 +597,8 @@ function loadUser() {
         document.getElementById(`${s}-completed`).value = data.hours[s]?.completed || "";
     });
 
-    renderCompletion(); renderRevision(); renderDayTracker(); renderCalendar(); updateChart(false);
+    evaluateAllStatuses(); // Check for missed days on load
+    renderCompletion(); renderRevision(); renderChecklist(); renderDayTracker(); renderCalendar(); updateChart(false);
 }
 
 // INIT
