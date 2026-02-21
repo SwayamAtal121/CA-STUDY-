@@ -112,6 +112,7 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
 
 .comment-input { width: 100%; display: none; margin: 0; background: var(--input-bg); }
 .comment-input.show { display: block; animation: fadeIn 0.3s ease; }
+.comment-input:disabled { opacity: 0.6; cursor: not-allowed; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
 /* CALENDAR SPECIFIC */
@@ -281,6 +282,28 @@ const subjects = ["AFM", "FR", "DT", "IDT", "Audit"];
 function getTodayStr() {
     const d = new Date();
     return `${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}, ${d.toLocaleDateString('en-GB', { weekday: 'short' })}`;
+}
+
+// ================= NEW: LOCKING LOGIC HELPER =================
+function isEntryLocked(dateStr) {
+    const parts = dateStr.split(',');
+    const dayMonth = parts[0].trim(); // e.g., "22 Feb"
+    
+    let parsed = new Date(dayMonth + " " + new Date().getFullYear());
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    parsed.setHours(0,0,0,0);
+    
+    // If the parsed date is more than 6 months in the future, it must be from last year
+    if (parsed.getTime() - today.getTime() > 180 * 24 * 3600 * 1000) {
+        parsed.setFullYear(parsed.getFullYear() - 1);
+    }
+    
+    // Calculate difference in days
+    const diffDays = (today.getTime() - parsed.getTime()) / (1000 * 3600 * 24);
+    
+    // Returns true if the entry is older than 3 days
+    return diffDays > 3;
 }
 
 // ================= THEME LOGIC =================
@@ -538,7 +561,7 @@ window.addManualEntry = () => {
     if (!appData[currentUser].dayTracker) appData[currentUser].dayTracker = [];
     
     const exists = appData[currentUser].dayTracker.find(entry => entry.date === fullStr);
-    if (exists) { alert("This date is already logged! You can edit it in the table below."); return; }
+    if (exists) { alert("This date is already logged! You can edit it in the table below if it's recent."); return; }
 
     appData[currentUser].dayTracker.unshift({ date: fullStr, status: 0, comment: "", tasks: [] }); 
     document.getElementById('manualDateInput').value = ""; 
@@ -550,17 +573,41 @@ window.addManualEntry = () => {
 
 window.cycleStatus = (idx) => {
     const entry = appData[currentUser].dayTracker[idx];
-    if (entry.tasks && entry.tasks.length > 0) return; // Prevent manual click if tracking via checklist
+    if (entry.tasks && entry.tasks.length > 0) return; 
+    
+    // BACKEND CHECK: Prevent changing if older than 3 days
+    if (isEntryLocked(entry.date)) {
+        alert("🔒 This log is older than 3 days and is now locked.");
+        return;
+    }
 
+    // Toggle: Click to Set(0) -> 100% Complete(1) -> Incomplete(3)
     let current = entry.status;
-    current = (current + 1) % 4; 
+    if (current === 0) current = 1;
+    else if (current === 1) current = 3;
+    else current = 0;
+    
     entry.status = current;
     if (current !== 3) { entry.comment = ""; }
     save(); renderDayTracker(); renderCalendar();
 };
 
-window.updateComment = (idx, val) => { appData[currentUser].dayTracker[idx].comment = val; save(); };
-window.deleteDayEntry = (idx) => { if(confirm("Delete this manual entry?")) { appData[currentUser].dayTracker.splice(idx, 1); save(); renderDayTracker(); renderCalendar(); renderChecklist(); } };
+window.updateComment = (idx, val) => { 
+    if (isEntryLocked(appData[currentUser].dayTracker[idx].date)) return;
+    appData[currentUser].dayTracker[idx].comment = val; 
+    save(); 
+};
+
+window.deleteDayEntry = (idx) => { 
+    if (isEntryLocked(appData[currentUser].dayTracker[idx].date)) {
+        alert("🔒 You cannot delete logs that are older than 3 days.");
+        return;
+    }
+    if(confirm("Delete this manual entry?")) { 
+        appData[currentUser].dayTracker.splice(idx, 1); 
+        save(); renderDayTracker(); renderCalendar(); renderChecklist(); 
+    } 
+};
 
 window.renderDayTracker = () => {
     if (!appData) return;
@@ -568,11 +615,12 @@ window.renderDayTracker = () => {
     const tbody = document.getElementById("dayTrackerBody");
     
     let html = "", greens = 0, incompletes = 0, reds = 0;
-    let totalScoreVal = 0; // For exact efficiency math
+    let totalScoreVal = 0; 
 
     list.forEach((entry, idx) => {
         const isAuto = entry.tasks && entry.tasks.length > 0;
-        let pct = 50; // Default fallback for manual partial
+        const locked = isEntryLocked(entry.date); // Check if the entry is > 3 days old
+        let pct = 0; 
         
         if (isAuto) {
             const doneCount = entry.tasks.filter(t => t.done).length;
@@ -582,29 +630,39 @@ window.renderDayTracker = () => {
         if(entry.status === 1) { greens++; totalScoreVal += 1; }
         if(entry.status === 2) { 
             incompletes++; 
-            totalScoreVal += isAuto ? (pct / 100) : 0.5; // Use exact math for score if it's checklist-based
+            totalScoreVal += isAuto ? (pct / 100) : 0; 
         }
         if(entry.status === 3) { reds++; }
 
         let statusText = "Click to Set";
-        if(entry.status === 1) statusText = "✔ Achieved";
+        if(entry.status === 1) statusText = "✔ 100% Complete";
+        if(entry.status === 2) statusText = isAuto ? `➖ ${pct}%` : "➖ Incomplete"; 
+        if(entry.status === 3) statusText = "❌ Incomplete";
         
-        // Exact percentage logic applied here!
-        if(entry.status === 2) statusText = isAuto ? `➖ ${pct}%` : "➖ Incomplete";
-        
-        if(entry.status === 3) statusText = "❌ Missed";
-        
+        // Render Status Button
         let btnHTML = `<div class="status-btn status-${entry.status}" onclick="cycleStatus(${idx})">${statusText}</div>`;
         if (isAuto) {
             btnHTML = `<div class="status-btn status-${entry.status} status-auto" title="Status automated by checklist">${statusText} ⚡</div>`;
+        } else if (locked) {
+            // Apply lock icon if older than 3 days
+            btnHTML = `<div class="status-btn status-${entry.status} status-auto" title="Locked (Older than 3 days)" onclick="cycleStatus(${idx})">${statusText} 🔒</div>`;
+        }
+
+        // Render Comment Input (Disable if locked)
+        const disabledAttr = locked ? "disabled" : "";
+        
+        // Render Delete Button (Disable if locked)
+        let delHTML = `<button class="delBtn" onclick="deleteDayEntry(${idx})">X</button>`;
+        if (locked) {
+            delHTML = `<button class="delBtn" style="opacity:0.4; cursor:not-allowed;" title="Locked" onclick="deleteDayEntry(${idx})">🔒</button>`;
         }
 
         html += `
             <tr>
                 <td style="font-size: 13px;">${entry.date}</td>
                 <td>${btnHTML}</td>
-                <td><input type="text" class="comment-input ${entry.status >= 2 ? 'show' : ''}" placeholder="Any notes on why?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)"></td>
-                <td><button class="delBtn" onclick="deleteDayEntry(${idx})">X</button></td>
+                <td><input type="text" class="comment-input ${entry.status === 3 || entry.status === 2 ? 'show' : ''}" placeholder="Any notes on why?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)" ${disabledAttr}></td>
+                <td>${delHTML}</td>
             </tr>`;
     });
     tbody.innerHTML = html;
@@ -614,7 +672,7 @@ window.renderDayTracker = () => {
 
     document.getElementById("trackerSummary").innerHTML = `
         <div class="sum-card" style="border-top: 4px solid #10b981;"><h4>Achieved</h4><span style="color:#10b981">${greens}</span></div>
-        <div class="sum-card" style="border-top: 4px solid #f59e0b;"><h4>Incomplete</h4><span style="color:#f59e0b">${incompletes}</span></div>
+        <div class="sum-card" style="border-top: 4px solid #f59e0b;"><h4>Partial</h4><span style="color:#f59e0b">${incompletes}</span></div>
         <div class="sum-card" style="border-top: 4px solid #ef4444;"><h4>Missed</h4><span style="color:#ef4444">${reds}</span></div>
         <div class="sum-card" style="border-top: 4px solid #6366f1;"><h4>Efficiency</h4><span style="color:#6366f1">${score}%</span></div>
     `;
