@@ -242,7 +242,7 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
                         <tr>
                             <th width="20%">Date</th>
                             <th width="25%">Status</th>
-                            <th width="45%">Reason (If Missed)</th>
+                            <th width="45%">Reason (If Missed/Inc)</th>
                             <th width="10%">Del</th>
                         </tr>
                     </thead>
@@ -378,7 +378,7 @@ function updateChart(shouldSave = true) {
 }
 document.querySelectorAll("#inputs input").forEach(i => i.addEventListener("input", () => updateChart(true)));
 
-// ================= COMPLETION & REVISION LOGIC (Unchanged) =================
+// ================= COMPLETION & REVISION LOGIC =================
 window.addCompletion = () => { const sub = document.getElementById("completionSubject").value; const chName = document.getElementById("completionChapter").value.trim(); if (!chName || !appData) return; if(!appData[currentUser].completion[sub]) appData[currentUser].completion[sub] = []; appData[currentUser].completion[sub].push({ name: chName, checks: [false, false, false] }); document.getElementById("completionChapter").value = ""; save(); renderCompletion(); };
 window.toggleCompletion = (sub, idx, box) => { appData[currentUser].completion[sub][idx].checks[box] = !appData[currentUser].completion[sub][idx].checks[box]; save(); };
 window.deleteCompletion = (sub, idx) => { if(confirm("Delete this chapter?")) { appData[currentUser].completion[sub].splice(idx, 1); save(); renderCompletion(); } };
@@ -523,7 +523,7 @@ window.renderCalendar = () => {
     grid.innerHTML = html;
 };
 
-// ================= NEW: MANUAL LOG SPECIFIC DATE =================
+// ================= MANUAL LOG SPECIFIC DATE =================
 window.addManualEntry = () => {
     const dateVal = document.getElementById('manualDateInput').value;
     if(!dateVal) { alert("Please select a date first!"); return; }
@@ -540,10 +540,8 @@ window.addManualEntry = () => {
     const exists = appData[currentUser].dayTracker.find(entry => entry.date === fullStr);
     if (exists) { alert("This date is already logged! You can edit it in the table below."); return; }
 
-    // Adds it to the top of the tracker
     appData[currentUser].dayTracker.unshift({ date: fullStr, status: 0, comment: "", tasks: [] }); 
-    
-    document.getElementById('manualDateInput').value = ""; // Clear input
+    document.getElementById('manualDateInput').value = ""; 
     
     save(); 
     renderDayTracker(); 
@@ -568,20 +566,34 @@ window.renderDayTracker = () => {
     if (!appData) return;
     const list = appData[currentUser].dayTracker || [];
     const tbody = document.getElementById("dayTrackerBody");
-    let html = "", greens = 0, yellows = 0, reds = 0;
+    
+    let html = "", greens = 0, incompletes = 0, reds = 0;
+    let totalScoreVal = 0; // For exact efficiency math
 
     list.forEach((entry, idx) => {
-        if(entry.status === 1) greens++;
-        if(entry.status === 2) yellows++;
-        if(entry.status === 3) reds++;
-
         const isAuto = entry.tasks && entry.tasks.length > 0;
+        let pct = 50; // Default fallback for manual partial
+        
+        if (isAuto) {
+            const doneCount = entry.tasks.filter(t => t.done).length;
+            pct = Math.round((doneCount / entry.tasks.length) * 100);
+        }
+
+        if(entry.status === 1) { greens++; totalScoreVal += 1; }
+        if(entry.status === 2) { 
+            incompletes++; 
+            totalScoreVal += isAuto ? (pct / 100) : 0.5; // Use exact math for score if it's checklist-based
+        }
+        if(entry.status === 3) { reds++; }
+
         let statusText = "Click to Set";
         if(entry.status === 1) statusText = "✔ Achieved";
-        if(entry.status === 2) statusText = "➖ 50%";
+        
+        // Exact percentage logic applied here!
+        if(entry.status === 2) statusText = isAuto ? `➖ ${pct}%` : "➖ Incomplete";
+        
         if(entry.status === 3) statusText = "❌ Missed";
         
-        // Show slightly different button if it's automated by checklist
         let btnHTML = `<div class="status-btn status-${entry.status}" onclick="cycleStatus(${idx})">${statusText}</div>`;
         if (isAuto) {
             btnHTML = `<div class="status-btn status-${entry.status} status-auto" title="Status automated by checklist">${statusText} ⚡</div>`;
@@ -591,18 +603,18 @@ window.renderDayTracker = () => {
             <tr>
                 <td style="font-size: 13px;">${entry.date}</td>
                 <td>${btnHTML}</td>
-                <td><input type="text" class="comment-input ${entry.status === 3 ? 'show' : ''}" placeholder="Why did you miss your targets?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)"></td>
+                <td><input type="text" class="comment-input ${entry.status >= 2 ? 'show' : ''}" placeholder="Any notes on why?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)"></td>
                 <td><button class="delBtn" onclick="deleteDayEntry(${idx})">X</button></td>
             </tr>`;
     });
     tbody.innerHTML = html;
 
     const total = list.length;
-    let score = total > 0 ? Math.round(((greens * 1) + (yellows * 0.5)) / total * 100) : 0;
+    let score = total > 0 ? Math.round((totalScoreVal / total) * 100) : 0;
 
     document.getElementById("trackerSummary").innerHTML = `
         <div class="sum-card" style="border-top: 4px solid #10b981;"><h4>Achieved</h4><span style="color:#10b981">${greens}</span></div>
-        <div class="sum-card" style="border-top: 4px solid #f59e0b;"><h4>Half Done</h4><span style="color:#f59e0b">${yellows}</span></div>
+        <div class="sum-card" style="border-top: 4px solid #f59e0b;"><h4>Incomplete</h4><span style="color:#f59e0b">${incompletes}</span></div>
         <div class="sum-card" style="border-top: 4px solid #ef4444;"><h4>Missed</h4><span style="color:#ef4444">${reds}</span></div>
         <div class="sum-card" style="border-top: 4px solid #6366f1;"><h4>Efficiency</h4><span style="color:#6366f1">${score}%</span></div>
     `;
