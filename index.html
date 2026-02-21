@@ -565,6 +565,7 @@ window.cycleStatus = (idx) => {
     save(); renderDayTracker(); renderCalendar();
 };
 
+// FIX: This now uses onchange in the HTML so typing isn't interrupted!
 window.updateComment = (idx, val) => { appData[currentUser].dayTracker[idx].comment = val; save(); };
 window.deleteDayEntry = (idx) => { if(confirm("Delete this day's entry?")) { appData[currentUser].dayTracker.splice(idx, 1); save(); renderDayTracker(); renderCalendar(); } };
 
@@ -584,11 +585,12 @@ window.renderDayTracker = () => {
         if(entry.status === 2) statusText = "➖ 50%";
         if(entry.status === 3) statusText = "❌ Missed";
 
+        // IMPORTANT FIX: onchange is used below instead of oninput
         html += `
             <tr>
                 <td style="font-size: 14px;">${entry.date}</td>
                 <td><div class="status-btn status-${entry.status}" onclick="cycleStatus(${idx})">${statusText}</div></td>
-                <td><input type="text" class="comment-input ${entry.status === 3 ? 'show' : ''}" placeholder="Why did you miss today's target?" value="${entry.comment || ''}" oninput="updateComment(${idx}, this.value)"></td>
+                <td><input type="text" class="comment-input ${entry.status === 3 ? 'show' : ''}" placeholder="Why did you miss today's target?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)"></td>
                 <td><button class="delBtn" onclick="deleteDayEntry(${idx})">X</button></td>
             </tr>`;
     });
