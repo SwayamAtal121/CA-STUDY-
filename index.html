@@ -227,9 +227,13 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
         </div>
 
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <h3 style="margin: 0;">📝 Historical Log</h3>
-                <button onclick="addDayEntry()" style="background: linear-gradient(135deg, #10b981, #059669); padding: 10px 16px; font-size: 13px;">+ Manual Log Today</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="margin: 0;">📝 Manual Log</h3>
+                
+                <div style="display:flex; gap:10px;">
+                    <input type="date" id="manualDateInput" style="padding: 8px 12px; font-size: 13px;">
+                    <button onclick="addManualEntry()" style="background: linear-gradient(135deg, #10b981, #059669); padding: 8px 16px; font-size: 13px;">+ Add Date</button>
+                </div>
             </div>
             
             <div class="subjectCard" style="margin-top:0; padding:10px;">
@@ -386,7 +390,7 @@ window.deleteRevision = (sub, idx) => { if(confirm("Delete this revision entry?"
 function renderRevision() { const tableContainer = document.getElementById("revisionTables"); tableContainer.innerHTML = ""; subjects.forEach(sub => { const list = appData[currentUser].revision[sub] || []; if (list.length > 0) { let rows = list.map((c, i) => `<tr><td>${c.name}</td><td><input type="checkbox" ${c.checks[0]?"checked":""} onchange="toggleRevision('${sub}',${i},0)"></td><td><input type="checkbox" ${c.checks[1]?"checked":""} onchange="toggleRevision('${sub}',${i},1)"></td><td><input type="checkbox" ${c.checks[2]?"checked":""} onchange="toggleRevision('${sub}',${i},2)"></td><td><input type="checkbox" ${c.checks[3]?"checked":""} onchange="toggleRevision('${sub}',${i},3)"></td><td><input type="checkbox" ${c.checks[4]?"checked":""} onchange="toggleRevision('${sub}',${i},4)"></td><td><button class="delBtn" onclick="deleteRevision('${sub}',${i})">X</button></td></tr>`).join(""); const card = document.createElement("div"); card.className = "subjectCard"; card.innerHTML = `<div class="subjectTitle">${sub}</div><table><tr><th width="30%">Chapter</th><th width="10%">Rev 1</th><th width="10%">Rev 2</th><th width="10%">Rev 3</th><th width="10%">Rev 4</th><th width="10%">Rev 5</th><th width="10%">Del</th></tr>${rows}</table>`; tableContainer.appendChild(card); } }); }
 
 
-// ================= NEW: SMART AUTOMATION LOGIC =================
+// ================= SMART AUTOMATION LOGIC =================
 function evaluateAllStatuses() {
     if (!appData) return;
     const todayStr = getTodayStr();
@@ -399,14 +403,12 @@ function evaluateAllStatuses() {
             let calculatedStatus = entry.status;
 
             if (entry.date === todayStr) {
-                // Today's rules
-                if (done === 0) calculatedStatus = 0; // Grey
-                else if (done === total) calculatedStatus = 1; // Green
-                else calculatedStatus = 2; // Yellow
+                if (done === 0) calculatedStatus = 0; 
+                else if (done === total) calculatedStatus = 1; 
+                else calculatedStatus = 2; 
             } else {
-                // Past days brutal rules: If not 100%, it's Red.
-                if (done === total) calculatedStatus = 1; // Green
-                else calculatedStatus = 3; // Red missed
+                if (done === total) calculatedStatus = 1; 
+                else calculatedStatus = 3; 
             }
 
             if (entry.status !== calculatedStatus) {
@@ -429,7 +431,7 @@ function getOrCreateTodayEntry() {
         entry = { date: todayStr, status: 0, comment: "", tasks: [] };
         appData[currentUser].dayTracker.unshift(entry);
     }
-    if (!entry.tasks) entry.tasks = []; // safety
+    if (!entry.tasks) entry.tasks = []; 
     return entry;
 }
 
@@ -521,8 +523,32 @@ window.renderCalendar = () => {
     grid.innerHTML = html;
 };
 
-// Kept for backward compatibility if user just wants to log a blank day
-window.addDayEntry = () => { getOrCreateTodayEntry(); save(); renderDayTracker(); renderCalendar(); };
+// ================= NEW: MANUAL LOG SPECIFIC DATE =================
+window.addManualEntry = () => {
+    const dateVal = document.getElementById('manualDateInput').value;
+    if(!dateVal) { alert("Please select a date first!"); return; }
+    
+    const [y, m, d] = dateVal.split('-');
+    const dateObj = new Date(y, m - 1, d);
+    
+    const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    const dayStr = dateObj.toLocaleDateString('en-GB', { weekday: 'short' });
+    const fullStr = `${dateStr}, ${dayStr}`;
+
+    if (!appData[currentUser].dayTracker) appData[currentUser].dayTracker = [];
+    
+    const exists = appData[currentUser].dayTracker.find(entry => entry.date === fullStr);
+    if (exists) { alert("This date is already logged! You can edit it in the table below."); return; }
+
+    // Adds it to the top of the tracker
+    appData[currentUser].dayTracker.unshift({ date: fullStr, status: 0, comment: "", tasks: [] }); 
+    
+    document.getElementById('manualDateInput').value = ""; // Clear input
+    
+    save(); 
+    renderDayTracker(); 
+    renderCalendar();
+};
 
 window.cycleStatus = (idx) => {
     const entry = appData[currentUser].dayTracker[idx];
@@ -536,7 +562,7 @@ window.cycleStatus = (idx) => {
 };
 
 window.updateComment = (idx, val) => { appData[currentUser].dayTracker[idx].comment = val; save(); };
-window.deleteDayEntry = (idx) => { if(confirm("Delete this historical entry?")) { appData[currentUser].dayTracker.splice(idx, 1); save(); renderDayTracker(); renderCalendar(); renderChecklist(); } };
+window.deleteDayEntry = (idx) => { if(confirm("Delete this manual entry?")) { appData[currentUser].dayTracker.splice(idx, 1); save(); renderDayTracker(); renderCalendar(); renderChecklist(); } };
 
 window.renderDayTracker = () => {
     if (!appData) return;
@@ -597,7 +623,7 @@ function loadUser() {
         document.getElementById(`${s}-completed`).value = data.hours[s]?.completed || "";
     });
 
-    evaluateAllStatuses(); // Check for missed days on load
+    evaluateAllStatuses(); 
     renderCompletion(); renderRevision(); renderChecklist(); renderDayTracker(); renderCalendar(); updateChart(false);
 }
 
