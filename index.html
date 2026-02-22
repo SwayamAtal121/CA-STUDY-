@@ -219,8 +219,7 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
                     <button onclick="addTodo()" style="padding: 12px 18px;">Add</button>
                 </div>
 
-                <div id="todoList" style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
-                    </div>
+                <div id="todoList" style="max-height: 250px; overflow-y: auto; padding-right: 5px;"></div>
                 <div id="emptyTodoMsg" style="text-align: center; color: var(--text-muted); padding: 20px 0; font-size: 14px;">
                     Add a task to start automating today's progress!
                 </div>
@@ -241,8 +240,8 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
                 <table style="min-width: 100%;">
                     <thead>
                         <tr>
-                            <th width="20%">Date</th>
-                            <th width="25%">Status</th>
+                            <th width="25%">Date</th>
+                            <th width="20%">Status</th>
                             <th width="45%">Reason (If Missed/Inc)</th>
                             <th width="10%">Del</th>
                         </tr>
@@ -278,31 +277,40 @@ let currentUser = "Swayam";
 let currentCalDate = new Date(); 
 const subjects = ["AFM", "FR", "DT", "IDT", "Audit"];
 
-// Helper to get formatted date string for today
+// Helper to get formatted date string for today WITH YEAR
 function getTodayStr() {
     const d = new Date();
-    return `${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}, ${d.toLocaleDateString('en-GB', { weekday: 'short' })}`;
+    return `${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${d.toLocaleDateString('en-GB', { weekday: 'short' })}`;
 }
 
-// ================= NEW: LOCKING LOGIC HELPER =================
-function isEntryLocked(dateStr) {
-    const parts = dateStr.split(',');
-    const dayMonth = parts[0].trim(); // e.g., "22 Feb"
-    
-    let parsed = new Date(dayMonth + " " + new Date().getFullYear());
+// ================= LOCKING LOGIC HELPER =================
+function isEntryLocked(entry) {
     const today = new Date();
     today.setHours(0,0,0,0);
+
+    // If it has a createdAt timestamp (All new entries going forward will)
+    if (entry.createdAt) {
+        const created = new Date(entry.createdAt);
+        created.setHours(0,0,0,0);
+        const diffDays = (today.getTime() - created.getTime()) / (1000 * 3600 * 24);
+        return diffDays > 3;
+    }
+
+    // Fallback logic for old entries that don't have createdAt
+    const parts = entry.date.split(',');
+    const dayMonthYear = parts[0].trim(); 
+    
+    let parsed = new Date(dayMonthYear);
+    if(isNaN(parsed.getTime())) {
+        parsed = new Date(dayMonthYear + " " + new Date().getFullYear());
+    }
     parsed.setHours(0,0,0,0);
     
-    // If the parsed date is more than 6 months in the future, it must be from last year
     if (parsed.getTime() - today.getTime() > 180 * 24 * 3600 * 1000) {
         parsed.setFullYear(parsed.getFullYear() - 1);
     }
     
-    // Calculate difference in days
     const diffDays = (today.getTime() - parsed.getTime()) / (1000 * 3600 * 24);
-    
-    // Returns true if the entry is older than 3 days
     return diffDays > 3;
 }
 
@@ -412,7 +420,6 @@ window.toggleRevision = (sub, idx, box) => { appData[currentUser].revision[sub][
 window.deleteRevision = (sub, idx) => { if(confirm("Delete this revision entry?")) { appData[currentUser].revision[sub].splice(idx, 1); save(); renderRevision(); } };
 function renderRevision() { const tableContainer = document.getElementById("revisionTables"); tableContainer.innerHTML = ""; subjects.forEach(sub => { const list = appData[currentUser].revision[sub] || []; if (list.length > 0) { let rows = list.map((c, i) => `<tr><td>${c.name}</td><td><input type="checkbox" ${c.checks[0]?"checked":""} onchange="toggleRevision('${sub}',${i},0)"></td><td><input type="checkbox" ${c.checks[1]?"checked":""} onchange="toggleRevision('${sub}',${i},1)"></td><td><input type="checkbox" ${c.checks[2]?"checked":""} onchange="toggleRevision('${sub}',${i},2)"></td><td><input type="checkbox" ${c.checks[3]?"checked":""} onchange="toggleRevision('${sub}',${i},3)"></td><td><input type="checkbox" ${c.checks[4]?"checked":""} onchange="toggleRevision('${sub}',${i},4)"></td><td><button class="delBtn" onclick="deleteRevision('${sub}',${i})">X</button></td></tr>`).join(""); const card = document.createElement("div"); card.className = "subjectCard"; card.innerHTML = `<div class="subjectTitle">${sub}</div><table><tr><th width="30%">Chapter</th><th width="10%">Rev 1</th><th width="10%">Rev 2</th><th width="10%">Rev 3</th><th width="10%">Rev 4</th><th width="10%">Rev 5</th><th width="10%">Del</th></tr>${rows}</table>`; tableContainer.appendChild(card); } }); }
 
-
 // ================= SMART AUTOMATION LOGIC =================
 function evaluateAllStatuses() {
     if (!appData) return;
@@ -451,7 +458,8 @@ function getOrCreateTodayEntry() {
     
     let entry = appData[currentUser].dayTracker.find(d => d.date === todayStr);
     if (!entry) {
-        entry = { date: todayStr, status: 0, comment: "", tasks: [] };
+        // NEW: Stores createdAt timestamp for exactly 3 days of edit allowance!
+        entry = { date: todayStr, status: 0, comment: "", tasks: [], createdAt: Date.now() };
         appData[currentUser].dayTracker.unshift(entry);
     }
     if (!entry.tasks) entry.tasks = []; 
@@ -532,9 +540,13 @@ window.renderCalendar = () => {
     const todayDate = new Date();
     
     for(let i = 1; i <= daysInMonth; i++) {
-        const searchStr = `${String(i).padStart(2, '0')} ${monthShort}`; 
+        // Allows the calendar to pull entries safely, regardless of old or new format
+        const searchStrWithYear = `${String(i).padStart(2, '0')} ${monthShort} ${year}`; 
+        const searchStrOldFormat = `${String(i).padStart(2, '0')} ${monthShort},`; 
+
         let statusClass = "";
-        const entry = trackerData.find(e => e.date.startsWith(searchStr));
+        const entry = trackerData.find(e => e.date.startsWith(searchStrWithYear) || e.date.startsWith(searchStrOldFormat));
+        
         if (entry) {
             if (entry.status === 1) statusClass = "status-1";
             else if (entry.status === 2) statusClass = "status-2";
@@ -554,7 +566,8 @@ window.addManualEntry = () => {
     const [y, m, d] = dateVal.split('-');
     const dateObj = new Date(y, m - 1, d);
     
-    const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    // NEW: Dates are now logged WITH the year so there's never an overlap!
+    const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     const dayStr = dateObj.toLocaleDateString('en-GB', { weekday: 'short' });
     const fullStr = `${dateStr}, ${dayStr}`;
 
@@ -563,7 +576,8 @@ window.addManualEntry = () => {
     const exists = appData[currentUser].dayTracker.find(entry => entry.date === fullStr);
     if (exists) { alert("This date is already logged! You can edit it in the table below if it's recent."); return; }
 
-    appData[currentUser].dayTracker.unshift({ date: fullStr, status: 0, comment: "", tasks: [] }); 
+    // NEW: Stores createdAt timestamp for exactly 3 days of edit allowance!
+    appData[currentUser].dayTracker.unshift({ date: fullStr, status: 0, comment: "", tasks: [], createdAt: Date.now() }); 
     document.getElementById('manualDateInput').value = ""; 
     
     save(); 
@@ -575,13 +589,11 @@ window.cycleStatus = (idx) => {
     const entry = appData[currentUser].dayTracker[idx];
     if (entry.tasks && entry.tasks.length > 0) return; 
     
-    // BACKEND CHECK: Prevent changing if older than 3 days
-    if (isEntryLocked(entry.date)) {
-        alert("🔒 This log is older than 3 days and is now locked.");
+    if (isEntryLocked(entry)) {
+        alert("🔒 This log was created over 3 days ago and is permanently locked.");
         return;
     }
 
-    // Toggle: Click to Set(0) -> 100% Complete(1) -> Incomplete(3)
     let current = entry.status;
     if (current === 0) current = 1;
     else if (current === 1) current = 3;
@@ -593,14 +605,14 @@ window.cycleStatus = (idx) => {
 };
 
 window.updateComment = (idx, val) => { 
-    if (isEntryLocked(appData[currentUser].dayTracker[idx].date)) return;
+    if (isEntryLocked(appData[currentUser].dayTracker[idx])) return;
     appData[currentUser].dayTracker[idx].comment = val; 
     save(); 
 };
 
 window.deleteDayEntry = (idx) => { 
-    if (isEntryLocked(appData[currentUser].dayTracker[idx].date)) {
-        alert("🔒 You cannot delete logs that are older than 3 days.");
+    if (isEntryLocked(appData[currentUser].dayTracker[idx])) {
+        alert("🔒 You cannot delete logs that were created over 3 days ago.");
         return;
     }
     if(confirm("Delete this manual entry?")) { 
@@ -619,7 +631,7 @@ window.renderDayTracker = () => {
 
     list.forEach((entry, idx) => {
         const isAuto = entry.tasks && entry.tasks.length > 0;
-        const locked = isEntryLocked(entry.date); // Check if the entry is > 3 days old
+        const locked = isEntryLocked(entry); 
         let pct = 0; 
         
         if (isAuto) {
@@ -628,10 +640,7 @@ window.renderDayTracker = () => {
         }
 
         if(entry.status === 1) { greens++; totalScoreVal += 1; }
-        if(entry.status === 2) { 
-            incompletes++; 
-            totalScoreVal += isAuto ? (pct / 100) : 0; 
-        }
+        if(entry.status === 2) { incompletes++; totalScoreVal += isAuto ? (pct / 100) : 0; }
         if(entry.status === 3) { reds++; }
 
         let statusText = "Click to Set";
@@ -639,19 +648,14 @@ window.renderDayTracker = () => {
         if(entry.status === 2) statusText = isAuto ? `➖ ${pct}%` : "➖ Incomplete"; 
         if(entry.status === 3) statusText = "❌ Incomplete";
         
-        // Render Status Button
         let btnHTML = `<div class="status-btn status-${entry.status}" onclick="cycleStatus(${idx})">${statusText}</div>`;
         if (isAuto) {
             btnHTML = `<div class="status-btn status-${entry.status} status-auto" title="Status automated by checklist">${statusText} ⚡</div>`;
         } else if (locked) {
-            // Apply lock icon if older than 3 days
-            btnHTML = `<div class="status-btn status-${entry.status} status-auto" title="Locked (Older than 3 days)" onclick="cycleStatus(${idx})">${statusText} 🔒</div>`;
+            btnHTML = `<div class="status-btn status-${entry.status} status-auto" title="Locked (Past 3-Day Grace Period)" onclick="cycleStatus(${idx})">${statusText} 🔒</div>`;
         }
 
-        // Render Comment Input (Disable if locked)
         const disabledAttr = locked ? "disabled" : "";
-        
-        // Render Delete Button (Disable if locked)
         let delHTML = `<button class="delBtn" onclick="deleteDayEntry(${idx})">X</button>`;
         if (locked) {
             delHTML = `<button class="delBtn" style="opacity:0.4; cursor:not-allowed;" title="Locked" onclick="deleteDayEntry(${idx})">🔒</button>`;
