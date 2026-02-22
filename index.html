@@ -52,10 +52,10 @@ h1{ margin: 0; font-size: 28px; font-weight: 700; background: linear-gradient(to
 .theme-toggle { background: var(--card-bg); border: 1px solid var(--card-border); padding: 10px; border-radius: 50%; cursor: pointer; font-size: 20px; backdrop-filter: blur(10px); box-shadow: var(--shadow); color: var(--text-main); }
 .theme-toggle:hover { transform: scale(1.1); }
 
-/* --- NEW HEADER PHOTO STYLING (INCREASED SIZE) --- */
+/* --- NEW HEADER PHOTO STYLING (DOUBLED SIZE) --- */
 .header-photo {
-    width: 150px; /* Increased size */
-    height: 85px;  /* Increased size */
+    width: 300px;  /* Doubled from 150px */
+    height: 170px; /* Doubled from 85px */
     border-radius: 12px;
     object-fit: cover;
     object-position: center 30%;
@@ -64,7 +64,7 @@ h1{ margin: 0; font-size: 28px; font-weight: 700; background: linear-gradient(to
     transition: transform 0.3s ease;
 }
 .header-photo:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
 }
 
 /* USER SWITCH WITH PHOTOS */
@@ -78,10 +78,14 @@ h1{ margin: 0; font-size: 28px; font-weight: 700; background: linear-gradient(to
     font-weight: 500; 
     display: flex; align-items: center; gap: 10px; 
     transition: all 0.3s ease;
+    user-select: none; /* Prevents text highlighting */
 }
+/* This CSS line makes clicks pass through the image and text to hit the button directly */
+.userBtn img, .userBtn span { pointer-events: none; }
+
 .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; }
 .userBtn:hover{ background:var(--tab-hover); }
-.userBtn.active{ background: linear-gradient(135deg, #10b981, #059669); color: white; border-color: transparent; font-weight: 600; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); }
+.userBtn.active{ background: linear-gradient(135deg, #10b981, #059669); color: white; border-color: transparent; font-weight: 600; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); transform: scale(1.05); }
 .userBtn.active .user-avatar { border-color: white; } 
 
 /* TABS */
@@ -389,10 +393,11 @@ function save() {
     }
 }
 
+// IMPORTANT BUG FIX HERE (e.currentTarget)
 window.switchUser = (e, user) => {
     currentUser = user;
     document.querySelectorAll(".userBtn").forEach(b => b.classList.remove("active"));
-    e.target.classList.add("active");
+    e.currentTarget.classList.add("active"); 
     loadUser();
 };
 
@@ -626,13 +631,12 @@ window.cycleStatus = (idx) => {
         return;
     }
 
-    // NEW Toggle: Click to Set(0) -> 100% Complete(1) -> Partial(2) -> Incomplete(3) -> 0
     let current = entry.status;
     current = (current + 1) % 4; 
     
     entry.status = current;
     if (current !== 3 && current !== 2) { entry.comment = ""; }
-    if (current === 2 && !entry.manualPct) { entry.manualPct = 50; } // Default partial to 50%
+    if (current === 2 && !entry.manualPct) { entry.manualPct = 50; } 
     save(); renderDayTracker(); renderCalendar();
 };
 
@@ -640,8 +644,8 @@ window.updateManualPct = (idx, val) => {
     if (isEntryLocked(appData[currentUser].dayTracker[idx])) return;
     let num = parseInt(val);
     if (isNaN(num)) num = 50;
-    if (num > 99) num = 99; // Can't be 100 (that's status 1)
-    if (num < 1) num = 1;   // Can't be 0 (that's status 3)
+    if (num > 99) num = 99; 
+    if (num < 1) num = 1;   
     
     appData[currentUser].dayTracker[idx].manualPct = num;
     save(); renderDayTracker();
@@ -708,10 +712,8 @@ window.renderDayTracker = () => {
             delHTML = `<button class="delBtn" style="opacity:0.4; cursor:not-allowed;" title="Locked" onclick="deleteDayEntry(${idx})">🔒</button>`;
         }
 
-        // --- NEW REASON CELL LOGIC ---
         let reasonCell = `<input type="text" class="comment-input ${entry.status === 3 ? 'show' : ''}" placeholder="Any notes on why?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)" ${disabledAttr}>`;
         
-        // If it is manually set to Partial (status 2), show the dynamic input box inline!
         if (isManualPartial) {
             reasonCell = `
             <div style="display:flex; gap:8px; animation: fadeIn 0.3s ease; width: 100%;">
