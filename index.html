@@ -158,16 +158,18 @@ input[type="number"] { -moz-appearance: textfield; }
 .cal-day.today { background: var(--color-primary); color: white; font-weight: 700; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
 .cal-nav-btn { background: var(--input-bg); color: var(--color-primary); padding: 8px 14px; border-radius: 10px; }
 
-/* --- NEW CHECKLIST & TIMER STYLES --- */
+/* --- CHECKLIST & TIMER STYLES --- */
 .todo-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 12px; background: transparent; border-bottom: 1px dashed var(--border-color); gap: 12px;}
 .todo-item:last-child { border-bottom: none; }
 .todo-item.done { opacity: 0.5; background: var(--input-bg); border-radius: 12px; border: none; margin-bottom: 8px; }
 .todo-item.done .todo-text { text-decoration: line-through; }
-.todo-text { font-weight: 500; font-size: 15px; flex-grow: 1; margin: 0 4px; }
+.todo-text { font-weight: 600; font-size: 15px; color: var(--text-main); }
+.todo-details { display: flex; flex-direction: column; flex-grow: 1; margin: 0 4px; }
+.todo-timestamps { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 600; letter-spacing: 0.3px; }
 
 .timer-group { display: flex; align-items: center; gap: 12px; background: var(--card-bg); padding: 4px 12px; border-radius: 99px; border: 1px solid var(--border-color);}
 .timer-display { 
-    font-variant-numeric: tabular-nums; /* Keeps numbers from jumping */
+    font-variant-numeric: tabular-nums; 
     font-family: monospace; font-size: 14px; font-weight: 600; color: var(--text-main); width: 45px; text-align: right; 
 }
 .timer-btn { 
@@ -341,7 +343,7 @@ function getTodayStr() {
     return `${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${d.toLocaleDateString('en-GB', { weekday: 'short' })}`;
 }
 
-// FORMAT TIME (Secs -> HH:MM:SS or MM:SS)
+// HELPER: FORMAT SECONDS TO MM:SS or HH:MM:SS
 function formatTime(totalSeconds) {
     if (!totalSeconds) return "00:00";
     const h = Math.floor(totalSeconds / 3600);
@@ -349,6 +351,12 @@ function formatTime(totalSeconds) {
     const s = Math.floor(totalSeconds % 60).toString().padStart(2, '0');
     if (h > 0) return `${h}:${m}:${s}`;
     return `${m}:${s}`;
+}
+
+// HELPER: FORMAT TIMESTAMP TO 10:30 AM
+function formatTimeStr(ts) {
+    if (!ts) return "";
+    return new Date(ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 }
 
 function isEntryLocked(entry) {
@@ -515,15 +523,23 @@ function getOrCreateTodayEntry() {
     return entry;
 }
 
-// --- TIMER FUNCTIONS ---
+// --- TIMER FUNCTIONS (Bulletproofed with Started/Ended Times) ---
 window.addTodo = () => {
     const input = document.getElementById('newTodoInput');
     const text = input.value.trim();
     if(!text) return;
     const entry = getOrCreateTodayEntry();
     
-    // NEW: Tasks now initialize with timer variables
-    entry.tasks.push({ text: text, done: false, timeElapsed: 0, isRunning: false, lastStarted: null });
+    // Initialize task with all timing variables
+    entry.tasks.push({ 
+        text: text, 
+        done: false, 
+        timeElapsed: 0, 
+        isRunning: false, 
+        lastStarted: 0,
+        firstStartedAt: null, // NEW: Tracks when they hit play the first time
+        completedAt: null     // NEW: Tracks when they check the box
+    });
     
     input.value = "";
     evaluateAllStatuses(); save(); renderDayTracker(); renderCalendar(); renderChecklist();
@@ -532,17 +548,21 @@ window.addTodo = () => {
 window.toggleTimer = (index) => {
     const entry = getOrCreateTodayEntry();
     const task = entry.tasks[index];
-    if (task.done) return; // Cannot start timer if task is finished
+    if (task.done) return; 
 
     if (task.isRunning) {
-        // Pause logic
+        // Pause safely
         task.timeElapsed += Math.floor((Date.now() - task.lastStarted) / 1000);
         task.isRunning = false;
-        task.lastStarted = null;
+        task.lastStarted = 0; 
     } else {
-        // Play logic
+        // Play safely
         task.lastStarted = Date.now();
         task.isRunning = true;
+        // Record very first start time if it doesn't exist yet
+        if (!task.firstStartedAt) {
+            task.firstStartedAt = Date.now();
+        }
     }
     save(); renderChecklist();
 };
@@ -551,29 +571,30 @@ window.toggleTodo = (index) => {
     const entry = getOrCreateTodayEntry();
     const task = entry.tasks[index];
     
-    // ONCE COMPLETE, YOU CANNOT UNCHECK IT (Per your request to lock it)
-    if (task.done) return; 
+    if (task.done) return; // Cannot unlock
 
-    // Stop timer if it was running
+    // Stop timer and secure time
     if (task.isRunning) {
         task.timeElapsed += Math.floor((Date.now() - task.lastStarted) / 1000);
         task.isRunning = false;
-        task.lastStarted = null;
+        task.lastStarted = 0;
     }
     
-    task.done = true; // Lock it!
+    task.done = true; 
+    task.completedAt = Date.now(); // Record exact completion time!
+    
     evaluateAllStatuses(); save(); renderDayTracker(); renderCalendar(); renderChecklist();
 };
 
 window.deleteTodo = (index) => {
     const entry = getOrCreateTodayEntry();
-    if (entry.tasks[index].done) return; // Cannot delete if completed
+    if (entry.tasks[index].done) return; 
     
     entry.tasks.splice(index, 1);
     evaluateAllStatuses(); save(); renderDayTracker(); renderCalendar(); renderChecklist();
 };
 
-// LIVE TIMER UPDATER (Updates the screen every second without reloading Firebase)
+// LIVE TIMER UPDATER 
 setInterval(() => {
     if (!appData || !appData[currentUser].dayTracker) return;
     const todayStr = getTodayStr();
@@ -614,7 +635,6 @@ function renderChecklist() {
         const isDone = task.done;
         const timeStr = formatTime(currentElapsed);
         
-        // Play/Pause Button Logic
         let playPauseBtn = '';
         if (!isDone) {
             if (task.isRunning) {
@@ -626,18 +646,31 @@ function renderChecklist() {
             playPauseBtn = `<div style="font-size: 14px;" title="Locked">🔒</div>`;
         }
 
-        // Hide Delete Button if Task is Done
         let delBtn = '';
         if (!isDone) {
             delBtn = `<button class="delBtn" style="padding: 6px 10px;" onclick="deleteTodo(${i})">✕</button>`;
         } else {
-            delBtn = `<div></div>`; // Empty space to keep layout aligned
+            delBtn = `<div style="width: 30px;"></div>`; 
+        }
+
+        // BUILD THE TIMESTAMP TEXT (Started: X | Ended: Y)
+        let timeStampHtml = '';
+        if (task.firstStartedAt || task.completedAt) {
+            let startedStr = task.firstStartedAt ? `Started: ${formatTimeStr(task.firstStartedAt)}` : '';
+            let endedStr = task.completedAt ? `Ended: ${formatTimeStr(task.completedAt)}` : '';
+            let separator = (startedStr && endedStr) ? ' • ' : '';
+            
+            timeStampHtml = `<div class="todo-timestamps">${startedStr}${separator}${endedStr}</div>`;
         }
 
         return `
             <div class="todo-item ${isDone ? 'done' : ''}">
                 <input type="checkbox" class="todo-checkbox" ${isDone ? 'checked disabled' : ''} onchange="toggleTodo(${i})">
-                <span class="todo-text">${task.text}</span>
+                
+                <div class="todo-details">
+                    <span class="todo-text">${task.text}</span>
+                    ${timeStampHtml}
+                </div>
                 
                 <div class="timer-group">
                     <span class="timer-display" id="timer-display-${i}">${timeStr}</span>
@@ -794,8 +827,8 @@ window.renderDayTracker = () => {
             reasonCell = `
             <div style="display:flex; gap:8px; animation: fadeIn 0.3s ease; width: 100%;">
                 <div style="position: relative; display: flex; align-items: center;">
-                    <input type="number" min="1" max="99" style="width: 65px; padding: 8px; background: var(--input-bg); border: none; color: var(--text-main); border-radius: 8px; outline: none; margin: 0;" value="${pct}" onchange="updateManualPct(${idx}, this.value)" ${disabledAttr} title="Enter Completion %">
-                    <span style="position: absolute; right: 8px; font-size: 12px; color: var(--text-muted); pointer-events: none;">%</span>
+                    <input type="number" min="1" max="99" style="width: 65px; padding: 10px 12px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 10px; outline: none; margin: 0;" value="${pct}" onchange="updateManualPct(${idx}, this.value)" ${disabledAttr} title="Enter Completion %">
+                    <span style="position: absolute; right: 10px; font-size: 13px; font-weight: 600; color: var(--text-muted); pointer-events: none;">%</span>
                 </div>
                 <input type="text" class="comment-input show" style="flex-grow:1; margin: 0;" placeholder="Any notes on why?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)" ${disabledAttr}>
             </div>`;
