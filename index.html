@@ -3,146 +3,263 @@
 <head>
 <title>CA Study Tracker</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* --- THEME VARIABLES --- */
+/* --- iOS THEME VARIABLES --- */
 :root {
-    --bg-gradient: linear-gradient(135deg, #f0f4f8, #e2e8f0);
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --card-bg: rgba(255, 255, 255, 0.6);
-    --card-border: rgba(255, 255, 255, 0.8);
-    --input-bg: rgba(255, 255, 255, 0.9);
-    --input-border: rgba(148, 163, 184, 0.3);
-    --row-bg: rgba(255, 255, 255, 0.5);
-    --row-hover: rgba(255, 255, 255, 0.9);
-    --shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-    --chart-text: #0f172a;
-    --tab-bg: rgba(255, 255, 255, 0.5);
-    --tab-hover: rgba(255, 255, 255, 0.8);
+    /* Light Mode - iOS Apple Specs */
+    --bg-main: #F2F2F7;
+    --card-bg: #FFFFFF;
+    --text-main: #000000;
+    --text-muted: #8E8E93;
+    --input-bg: #E5E5EA;
+    --border-color: rgba(0, 0, 0, 0.05);
+    --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.04);
+    --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.08);
+    
+    /* Apple System Colors */
+    --ios-blue: #007AFF;
+    --ios-green: #34C759;
+    --ios-red: #FF3B30;
+    --ios-orange: #FF9500;
+    --ios-gray: #8E8E93;
 }
 
 [data-theme="dark"] {
-    --bg-gradient: linear-gradient(135deg, #09090b, #1e1b4b);
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --card-bg: rgba(30, 41, 59, 0.4);
-    --card-border: rgba(255, 255, 255, 0.05);
-    --input-bg: rgba(15, 23, 42, 0.6);
-    --input-border: rgba(255, 255, 255, 0.1);
-    --row-bg: rgba(255, 255, 255, 0.03);
-    --row-hover: rgba(255, 255, 255, 0.08);
-    --shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4);
-    --chart-text: #f8fafc;
-    --tab-bg: rgba(255, 255, 255, 0.06);
-    --tab-hover: rgba(255, 255, 255, 0.1);
+    /* Dark Mode - iOS Apple Specs */
+    --bg-main: #000000;
+    --card-bg: #1C1C1E;
+    --text-main: #FFFFFF;
+    --text-muted: #98989D;
+    --input-bg: #2C2C2E;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.4);
+    --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.6);
+    
+    /* Apple System Colors (Dark Mode Variants) */
+    --ios-blue: #0A84FF;
+    --ios-green: #30D158;
+    --ios-red: #FF453A;
+    --ios-orange: #FF9F0A;
+    --ios-gray: #98989D;
 }
 
 /* --- CSS STYLING --- */
-*{box-sizing:border-box; transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;}
+* { box-sizing: border-box; transition: background 0.3s ease, color 0.3s ease; }
 
-body{ font-family:'Inter',sans-serif; margin:0; background:var(--bg-gradient); color:var(--text-main); min-height: 100vh; }
-.app{ max-width:1350px; margin:auto; padding:30px 18px; }
+body { 
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+    margin: 0; 
+    background: var(--bg-main); 
+    color: var(--text-main); 
+    min-height: 100vh; 
+    -webkit-font-smoothing: antialiased;
+}
 
-/* HEADER & THEME TOGGLE */
-.header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-h1{ margin: 0; font-size: 28px; font-weight: 700; background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; color: transparent; }
-.theme-toggle { background: var(--card-bg); border: 1px solid var(--card-border); padding: 10px; border-radius: 50%; cursor: pointer; font-size: 20px; backdrop-filter: blur(10px); box-shadow: var(--shadow); color: var(--text-main); }
-.theme-toggle:hover { transform: scale(1.1); }
+.app { max-width: 1200px; margin: auto; padding: 32px 20px; }
 
-/* --- NEW HEADER PHOTO STYLING (DOUBLED SIZE) --- */
+/* HEADER - PERFECTLY CENTERED GRID */
+.header-container { 
+    display: grid; 
+    grid-template-columns: 1fr auto 1fr; 
+    align-items: center; 
+    margin-bottom: 32px; 
+}
+.header-left { display: flex; justify-content: flex-start; }
+.header-right { display: flex; justify-content: flex-end; }
+
+h1 { 
+    margin: 0; 
+    font-size: 24px; 
+    font-weight: 700; 
+    letter-spacing: -0.5px;
+    color: var(--text-main); 
+    text-align: center;
+}
+
+.theme-toggle { 
+    background: var(--card-bg); 
+    border: 1px solid var(--border-color); 
+    padding: 10px 12px; 
+    border-radius: 50%; 
+    cursor: pointer; 
+    font-size: 18px; 
+    box-shadow: var(--shadow-soft); 
+    color: var(--text-main); 
+}
+.theme-toggle:hover { transform: scale(1.05); }
+
+/* --- HEADER PHOTO (iOS Widget Style) --- */
 .header-photo {
-    width: 300px;  /* Doubled from 150px */
-    height: 170px; /* Doubled from 85px */
-    border-radius: 12px;
+    width: 140px; 
+    height: 80px; 
+    border-radius: 16px; /* Squarcle look */
     object-fit: cover;
     object-position: center 30%;
-    border: 2px solid var(--card-border);
-    box-shadow: var(--shadow);
-    transition: transform 0.3s ease;
-}
-.header-photo:hover {
-    transform: scale(1.02);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-soft);
 }
 
-/* USER SWITCH WITH PHOTOS */
-.userSwitch{ display:flex; justify-content:center; gap:14px; margin-bottom:24px; }
-.userBtn{ 
+/* USER SWITCH (iOS Segmented Contact Style) */
+.userSwitch { display: flex; justify-content: center; gap: 12px; margin-bottom: 24px; }
+.userBtn { 
     padding: 6px 16px 6px 6px; 
-    border-radius:999px; 
-    cursor:pointer; 
-    background:var(--tab-bg); 
-    border: 1px solid var(--card-border); 
-    font-weight: 500; 
-    display: flex; align-items: center; gap: 10px; 
-    transition: all 0.3s ease;
-    user-select: none; /* Prevents text highlighting */
+    border-radius: 999px; 
+    cursor: pointer; 
+    background: var(--card-bg); 
+    border: 1px solid var(--border-color); 
+    font-weight: 600; 
+    font-size: 14px;
+    display: flex; align-items: center; gap: 8px; 
+    box-shadow: var(--shadow-soft);
+    user-select: none;
+    color: var(--text-muted);
 }
-/* This CSS line makes clicks pass through the image and text to hit the button directly */
 .userBtn img, .userBtn span { pointer-events: none; }
+.user-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+.userBtn.active { 
+    color: var(--text-main); 
+    border-color: var(--ios-blue);
+    box-shadow: 0 0 0 1px var(--ios-blue); /* Subtle blue ring */
+}
 
-.user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; }
-.userBtn:hover{ background:var(--tab-hover); }
-.userBtn.active{ background: linear-gradient(135deg, #10b981, #059669); color: white; border-color: transparent; font-weight: 600; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); transform: scale(1.05); }
-.userBtn.active .user-avatar { border-color: white; } 
+/* TABS (iOS Segmented Control) */
+.tabs-container { display: flex; justify-content: center; margin-bottom: 32px; }
+.tabs { 
+    display: inline-flex; 
+    background: var(--input-bg); 
+    padding: 4px; 
+    border-radius: 12px; 
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.tab { 
+    padding: 8px 20px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-weight: 500; 
+    font-size: 14px;
+    color: var(--text-muted);
+}
+.tab.active { 
+    background: var(--card-bg); 
+    color: var(--text-main); 
+    font-weight: 600; 
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12), 0 3px 1px rgba(0,0,0,0.04); 
+}
 
-/* TABS */
-.tabs{ display:flex; justify-content:center; gap:12px; margin-bottom:30px; flex-wrap:wrap; }
-.tab{ padding:10px 24px; border-radius:999px; cursor:pointer; background:var(--tab-bg); border: 1px solid var(--card-border); font-weight: 500; }
-.tab:hover{ background:var(--tab-hover); }
-.tab.active{ background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-color: transparent; font-weight: 600; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
+/* LAYOUT CARDS */
+.container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.card { 
+    background: var(--card-bg); 
+    padding: 24px; 
+    border-radius: 20px; 
+    border: 1px solid var(--border-color); 
+    box-shadow: var(--shadow-soft); 
+}
+.card h3 { margin-top: 0; margin-bottom: 20px; font-weight: 600; font-size: 18px; letter-spacing: -0.3px; }
 
-/* LAYOUT */
-.container{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
-.card{ background:var(--card-bg); padding:24px; border-radius:24px; backdrop-filter:blur(20px); border: 1px solid var(--card-border); box-shadow: var(--shadow); }
-.card h3 { margin-top: 0; margin-bottom: 20px; color: var(--text-main); font-weight: 600; }
+/* INPUTS & BUTTONS */
+.row { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 12px 0; 
+    border-bottom: 1px solid var(--border-color);
+}
+.row:last-child { border-bottom: none; }
+.row span { font-weight: 500; font-size: 15px; }
+.inputGroup { display: flex; gap: 8px; }
 
-.row{ display:flex; justify-content:space-between; align-items:center; padding:14px; border-radius:14px; margin-bottom:12px; background:var(--row-bg); border: 1px solid var(--card-border); }
-.row span { font-weight: 500; }
-.inputGroup{display:flex;gap:10px;}
+input, select { 
+    padding: 10px 14px; 
+    border-radius: 10px; 
+    border: none; 
+    background: var(--input-bg); 
+    color: var(--text-main); 
+    outline: none; 
+    font-family: inherit;
+    font-size: 15px;
+}
+input:focus, select:focus { box-shadow: 0 0 0 2px var(--ios-blue); }
 
-input,select{ padding:12px; border-radius:12px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); outline: none; font-family: inherit; }
-input:focus, select:focus { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+/* iOS Solid Button */
+button { 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 12px; 
+    background: var(--ios-blue); 
+    color: white; 
+    cursor: pointer; 
+    font-weight: 600; 
+    font-size: 14px;
+    font-family: inherit; 
+}
+button:hover { opacity: 0.9; }
 
-button{ border:none; padding:12px 24px; border-radius:12px; background: linear-gradient(135deg, #6366f1, #4f46e5); color:white; cursor:pointer; font-weight: 600; font-family: inherit; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
-button:hover{ transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); }
+/* TABLES (iOS List View Style) */
+.subjectCard { 
+    margin-top: 24px; 
+    border-radius: 16px; 
+    background: var(--card-bg); 
+    border: 1px solid var(--border-color); 
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+}
+.subjectTitle { 
+    font-weight: 600; 
+    font-size: 16px; 
+    color: var(--ios-blue); 
+    background: var(--input-bg);
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+table { width: 100%; min-width: 650px; border-collapse: collapse; }
+tr { border-bottom: 1px solid var(--border-color); }
+tr:last-child { border-bottom: none; }
+th, td { padding: 14px 20px; text-align: center; font-size: 14px; }
+td:first-child { text-align: left; font-weight: 500; }
+th { color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 
-/* TABLES */
-.subjectCard{ margin-top:24px; padding:20px; border-radius:20px; background:var(--row-bg); border: 1px solid var(--card-border); overflow-x:auto; }
-.subjectTitle{ font-weight:700; margin-bottom:16px; font-size:20px; color:#6366f1; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; }
-table{ width:100%; min-width:650px; border-collapse:separate; border-spacing:0 6px; }
-tr{ background:var(--card-bg); border-radius: 10px; }
-tr:hover{ background:var(--row-hover); }
-th,td{ padding:16px; text-align:center; }
-td:first-child{ text-align:left; font-weight:600; color: var(--text-main); border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
-td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
-th{ color:var(--text-muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--ios-green); cursor: pointer; }
 
-input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:pointer; }
-.delBtn{ background:rgba(239, 68, 68, 0.1); color:#ef4444; padding:8px 14px; border-radius:8px; font-size:13px; box-shadow: none; font-weight: 600; }
-.delBtn:hover{ background:#ef4444; color:white; transform: none; box-shadow: 0 4px 10px rgba(239,68,68,0.3); }
+.delBtn { 
+    background: rgba(255, 59, 48, 0.1); 
+    color: var(--ios-red); 
+    padding: 6px 12px; 
+    border-radius: 8px; 
+    font-size: 13px; 
+}
+.delBtn:hover { background: var(--ios-red); color: white; }
 
-#saveStatus{ text-align:center; font-size:14px; font-weight: 500; color:var(--text-muted); margin-top:40px; font-family: monospace; padding: 10px; background: var(--card-bg); border-radius: 10px; width: max-content; margin-left: auto; margin-right: auto; }
-.hidden{display:none;}
+#saveStatus { 
+    text-align: center; font-size: 13px; font-weight: 500; color: var(--text-muted); 
+    margin-top: 40px; padding: 10px; border-radius: 10px; width: max-content; margin-left: auto; margin-right: auto;
+}
+.hidden { display: none; }
 
 /* ================= DAY TRACKER & CALENDAR STYLES ================= */
 .summary-cards { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
-.sum-card { flex: 1; min-width: 120px; background: var(--card-bg); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid var(--card-border); backdrop-filter: blur(14px); box-shadow: var(--shadow); }
-.sum-card h4 { margin: 0 0 8px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
-.sum-card span { font-size: 32px; font-weight: 700; }
+.sum-card { 
+    flex: 1; min-width: 100px; background: var(--card-bg); padding: 20px 16px; 
+    border-radius: 16px; text-align: center; border: 1px solid var(--border-color); 
+    box-shadow: var(--shadow-soft);
+}
+.sum-card h4 { margin: 0 0 4px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+.sum-card span { font-size: 28px; font-weight: 700; letter-spacing: -1px; }
 
-.status-btn { width: 100%; padding: 10px; border-radius: 10px; cursor: pointer; text-align: center; font-weight: 600; user-select: none; border: 1px solid transparent; font-size: 14px; }
-.status-0 { background: var(--input-bg); color: var(--text-muted); border-color: var(--input-border); }
-.status-1 { background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.4); }
-.status-2 { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); }
-.status-3 { background: rgba(239, 68, 68, 0.15); color: #ef4444; border-color: rgba(239, 68, 68, 0.4); }
-.status-auto { background: rgba(99, 102, 241, 0.1); color: #6366f1; border-color: rgba(99, 102, 241, 0.3); cursor: default; }
+.status-btn { 
+    width: 100%; padding: 8px 12px; border-radius: 8px; cursor: pointer; 
+    text-align: center; font-weight: 600; user-select: none; font-size: 13px; 
+}
+.status-0 { background: var(--input-bg); color: var(--text-muted); }
+.status-1 { background: rgba(52, 199, 89, 0.15); color: var(--ios-green); }
+.status-2 { background: rgba(255, 149, 0, 0.15); color: var(--ios-orange); }
+.status-3 { background: rgba(255, 59, 48, 0.15); color: var(--ios-red); }
+.status-auto { cursor: default; }
 
-.comment-input { width: 100%; display: none; margin: 0; background: var(--input-bg); }
+.comment-input { width: 100%; display: none; margin: 0; background: var(--input-bg); font-size: 13px;}
 .comment-input.show { display: block; animation: fadeIn 0.3s ease; }
-.comment-input:disabled { opacity: 0.6; cursor: not-allowed; }
+.comment-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Number Input hidden arrows */
 input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -151,22 +268,30 @@ input[type="number"] { -moz-appearance: textfield; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
 /* CALENDAR SPECIFIC */
-.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
-.cal-day-header { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; padding-bottom: 6px;}
-.cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 13px; font-weight: 600; background: var(--input-bg); border: 1px solid var(--card-border); color: var(--text-main); }
-.cal-day.empty { background: transparent; border: none; }
-.cal-day.status-1 { background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981; box-shadow: inset 0 0 10px rgba(16,185,129,0.2);}
-.cal-day.status-2 { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border-color: #f59e0b; box-shadow: inset 0 0 10px rgba(245,158,11,0.2);}
-.cal-day.status-3 { background: rgba(239, 68, 68, 0.2); color: #ef4444; border-color: #ef4444; box-shadow: inset 0 0 10px rgba(239,68,68,0.2);}
-.cal-day.today { border: 2px solid #6366f1; }
-.cal-nav-btn { background: var(--input-bg); color: var(--text-main); padding: 6px 12px; box-shadow: none; border: 1px solid var(--input-border); }
-.cal-nav-btn:hover { background: var(--row-hover); transform: none; box-shadow: none; }
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
+.cal-day-header { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; padding-bottom: 4px;}
+.cal-day { 
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center; 
+    border-radius: 50%; font-size: 14px; font-weight: 500; 
+    background: transparent; color: var(--text-main);
+}
+.cal-day.empty { background: transparent; }
+.cal-day.status-1 { background: rgba(52, 199, 89, 0.15); color: var(--ios-green); font-weight: 600;}
+.cal-day.status-2 { background: rgba(255, 149, 0, 0.15); color: var(--ios-orange); font-weight: 600;}
+.cal-day.status-3 { background: rgba(255, 59, 48, 0.15); color: var(--ios-red); font-weight: 600;}
+.cal-day.today { background: var(--ios-blue); color: white; font-weight: 700; box-shadow: 0 4px 10px rgba(0,122,255,0.4); }
+
+.cal-nav-btn { background: var(--input-bg); color: var(--ios-blue); padding: 6px 12px; border-radius: 8px; }
 
 /* CHECKLIST SPECIFIC */
-.todo-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--row-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 8px; }
-.todo-item.done { opacity: 0.6; background: var(--card-bg); }
-.todo-item.done .todo-text { text-decoration: line-through; color: var(--text-muted); }
+.todo-item { 
+    display: flex; align-items: center; justify-content: space-between; 
+    padding: 12px; background: transparent; border-bottom: 1px solid var(--border-color); 
+}
+.todo-item:last-child { border-bottom: none; }
+.todo-item.done { opacity: 0.5; }
+.todo-item.done .todo-text { text-decoration: line-through; }
 .todo-text { font-weight: 500; font-size: 14px; flex-grow: 1; margin: 0 12px; }
 
 @media(max-width:900px){ .container{grid-template-columns:1fr;} }
@@ -177,33 +302,43 @@ input[type="number"] { -moz-appearance: textfield; }
 
 <div class="app">
     <div class="header-container">
-        <img src="photo.png" alt="Swayam & Nishika" class="header-photo" onerror="this.src='https://ui-avatars.com/api/?name=S+N&background=6366f1&color=fff&rounded=true';">
+        <div class="header-left">
+            <img src="photo.png" alt="Swayam & Nishika" class="header-photo" onerror="this.src='https://placehold.co/140x80/007AFF/FFFFFF?text=S+%26+N&font=Inter';">
+        </div>
         
-        <h1>📘 CA Study Tracker</h1>
-        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" id="themeIcon">☀️</button>
+        <h1>CA Study Tracker</h1>
+        
+        <div class="header-right">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" id="themeIcon">☀️</button>
+        </div>
     </div>
 
     <div class="userSwitch">
         <div class="userBtn active" onclick="switchUser(event,'Swayam')">
-            <img src="https://ui-avatars.com/api/?name=Swayam&background=6366f1&color=fff&rounded=true&bold=true" alt="Swayam" class="user-avatar">
+            <img src="https://ui-avatars.com/api/?name=Swayam&background=007AFF&color=fff&rounded=true&bold=true" alt="Swayam" class="user-avatar">
             <span>Swayam</span>
         </div>
         <div class="userBtn" onclick="switchUser(event,'Nishika')">
-            <img src="https://ui-avatars.com/api/?name=Nishika&background=a855f7&color=fff&rounded=true&bold=true" alt="Nishika" class="user-avatar">
+            <img src="https://ui-avatars.com/api/?name=Nishika&background=FF3B30&color=fff&rounded=true&bold=true" alt="Nishika" class="user-avatar">
             <span>Nishika</span>
         </div>
     </div>
 
-    <div class="tabs">
-        <div class="tab active" onclick="switchTab('hours')">Study Hours</div>
-        <div class="tab" onclick="switchTab('completion')">Completion</div>
-        <div class="tab" onclick="switchTab('revision')">Revision</div>
-        <div class="tab" onclick="switchTab('dayTracker')">Day Tracker</div>
+    <div class="tabs-container">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('hours')">Study Hours</div>
+            <div class="tab" onclick="switchTab('completion')">Completion</div>
+            <div class="tab" onclick="switchTab('revision')">Revision</div>
+            <div class="tab" onclick="switchTab('dayTracker')">Day Tracker</div>
+        </div>
     </div>
 
     <div id="hoursTab">
         <div class="container">
-            <div class="card"><h3>Enter Study Hours</h3><div id="inputs"></div></div>
+            <div class="card">
+                <h3>Enter Study Hours</h3>
+                <div id="inputs"></div>
+            </div>
             <div class="card" style="display: flex; flex-direction: column; align-items: center;">
                 <h3 style="align-self: flex-start;">Study Distribution</h3>
                 <div style="width: 100%; max-width: 400px;"><canvas id="pieChart"></canvas></div>
@@ -214,34 +349,34 @@ input[type="number"] { -moz-appearance: textfield; }
     <div id="completionTab" class="hidden">
         <div class="card">
             <h3>Add New Chapter</h3>
-            <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
                 <select id="completionSubject" style="min-width:120px;"><option>AFM</option><option>FR</option><option>DT</option><option>IDT</option><option>Audit</option></select>
                 <input id="completionChapter" placeholder="Enter Chapter Name..." style="flex-grow:1;">
-                <button onclick="addCompletion()">+ Add Chapter</button>
+                <button onclick="addCompletion()">Add Chapter</button>
             </div>
-            <div id="completionTables"></div>
         </div>
+        <div id="completionTables"></div>
     </div>
 
     <div id="revisionTab" class="hidden">
         <div class="card">
             <h3>Add New Chapter for Revision</h3>
-            <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
                 <select id="revisionSubject" style="min-width:120px;"><option>AFM</option><option>FR</option><option>DT</option><option>IDT</option><option>Audit</option></select>
                 <input id="revisionChapter" placeholder="Enter Chapter Name..." style="flex-grow:1;">
-                <button onclick="addRevision()">+ Add Chapter</button>
+                <button onclick="addRevision()">Add Chapter</button>
             </div>
-            <div id="revisionTables"></div>
         </div>
+        <div id="revisionTables"></div>
     </div>
 
     <div id="dayTrackerTab" class="hidden">
         <div class="summary-cards" id="trackerSummary"></div>
 
         <div class="container" style="margin-bottom: 24px; align-items: start; grid-template-columns: 1fr 1.2fr;">
-            <div class="card" style="padding: 20px;">
+            <div class="card">
                 <div class="calendar-header">
-                    <h3 style="margin: 0; font-size: 16px;" id="calMonthYear">📅 Calendar</h3>
+                    <h3 style="margin: 0; font-size: 16px;" id="calMonthYear">Calendar</h3>
                     <div style="display:flex; gap: 8px;">
                         <button class="cal-nav-btn" onclick="changeMonth(-1)">&lt;</button>
                         <button class="cal-nav-btn" onclick="changeMonth(1)">&gt;</button>
@@ -250,18 +385,18 @@ input[type="number"] { -moz-appearance: textfield; }
                 <div class="calendar-grid" id="calendarGrid"></div>
             </div>
 
-            <div class="card" style="padding: 20px;">
+            <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <h3 style="margin: 0;">🎯 Today's Targets</h3>
+                    <h3 style="margin: 0;">Today's Targets</h3>
                     <span id="checklistDate" style="font-size: 13px; color: var(--text-muted); font-weight: 600;"></span>
                 </div>
                 
                 <div style="display:flex; gap:10px; margin-bottom: 16px;">
                     <input id="newTodoInput" placeholder="E.g., Revise AFM Chap 2..." style="flex-grow:1;" onkeypress="if(event.key==='Enter') addTodo()">
-                    <button onclick="addTodo()" style="padding: 12px 18px;">Add</button>
+                    <button onclick="addTodo()">Add</button>
                 </div>
 
-                <div id="todoList" style="max-height: 250px; overflow-y: auto; padding-right: 5px;"></div>
+                <div id="todoList" style="max-height: 250px; overflow-y: auto;"></div>
                 <div id="emptyTodoMsg" style="text-align: center; color: var(--text-muted); padding: 20px 0; font-size: 14px;">
                     Add a task to start automating today's progress!
                 </div>
@@ -269,22 +404,22 @@ input[type="number"] { -moz-appearance: textfield; }
         </div>
 
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap: wrap; gap: 10px;">
-                <h3 style="margin: 0;">📝 Manual Log</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap: wrap; gap: 12px;">
+                <h3 style="margin: 0;">Manual Log</h3>
                 
-                <div style="display:flex; gap:10px;">
+                <div style="display:flex; gap:10px; align-items: center;">
                     <input type="date" id="manualDateInput" style="padding: 8px 12px; font-size: 13px;">
-                    <button onclick="addManualEntry()" style="background: linear-gradient(135deg, #10b981, #059669); padding: 8px 16px; font-size: 13px;">+ Add Date</button>
+                    <button onclick="addManualEntry()" style="padding: 8px 16px; font-size: 13px;">+ Add Date</button>
                 </div>
             </div>
             
-            <div class="subjectCard" style="margin-top:0; padding:10px;">
+            <div style="overflow-x:auto;">
                 <table style="min-width: 100%;">
                     <thead>
                         <tr>
-                            <th width="25%">Date</th>
-                            <th width="20%">Status</th>
-                            <th width="45%">Reason (If Missed/Inc)</th>
+                            <th width="20%">Date</th>
+                            <th width="25%">Status</th>
+                            <th width="45%">Reason / Notes</th>
                             <th width="10%">Del</th>
                         </tr>
                     </thead>
@@ -319,13 +454,11 @@ let currentUser = "Swayam";
 let currentCalDate = new Date(); 
 const subjects = ["AFM", "FR", "DT", "IDT", "Audit"];
 
-// Helper to get formatted date string for today WITH YEAR
 function getTodayStr() {
     const d = new Date();
     return `${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${d.toLocaleDateString('en-GB', { weekday: 'short' })}`;
 }
 
-// ================= LOCKING LOGIC HELPER =================
 function isEntryLocked(entry) {
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -339,11 +472,8 @@ function isEntryLocked(entry) {
 
     const parts = entry.date.split(',');
     const dayMonthYear = parts[0].trim(); 
-    
     let parsed = new Date(dayMonthYear);
-    if(isNaN(parsed.getTime())) {
-        parsed = new Date(dayMonthYear + " " + new Date().getFullYear());
-    }
+    if(isNaN(parsed.getTime())) { parsed = new Date(dayMonthYear + " " + new Date().getFullYear()); }
     parsed.setHours(0,0,0,0);
     
     if (parsed.getTime() - today.getTime() > 180 * 24 * 3600 * 1000) {
@@ -354,7 +484,6 @@ function isEntryLocked(entry) {
     return diffDays > 3;
 }
 
-// ================= THEME LOGIC =================
 window.toggleTheme = () => {
     const html = document.documentElement;
     const current = html.getAttribute('data-theme');
@@ -363,7 +492,7 @@ window.toggleTheme = () => {
     localStorage.setItem('studyTrackerTheme', newTheme);
     document.getElementById('themeIcon').innerText = newTheme === 'dark' ? '☀️' : '🌙';
     if(window.myPieChart) {
-        window.myPieChart.options.plugins.legend.labels.color = newTheme === 'dark' ? '#f8fafc' : '#0f172a';
+        window.myPieChart.options.plugins.legend.labels.color = newTheme === 'dark' ? '#FFFFFF' : '#000000';
         window.myPieChart.update();
     }
 };
@@ -384,16 +513,15 @@ function createEmpty() {
 function save() {
     if (appData) {
         set(ref(db, "caStudyTracker"), appData).then(() => {
-            document.getElementById("saveStatus").innerText = "✔ Data Synced: " + new Date().toLocaleTimeString();
-            document.getElementById("saveStatus").style.color = "#10b981";
+            document.getElementById("saveStatus").innerText = "✔ Synced: " + new Date().toLocaleTimeString();
+            document.getElementById("saveStatus").style.color = "var(--ios-green)";
         }).catch(() => {
              document.getElementById("saveStatus").innerText = "❌ Sync Error";
-             document.getElementById("saveStatus").style.color = "#ef4444";
+             document.getElementById("saveStatus").style.color = "var(--ios-red)";
         });
     }
 }
 
-// IMPORTANT BUG FIX HERE (e.currentTarget)
 window.switchUser = (e, user) => {
     currentUser = user;
     document.querySelectorAll(".userBtn").forEach(b => b.classList.remove("active"));
@@ -415,22 +543,21 @@ window.switchTab = (tab) => {
     if(tab==='dayTracker') tabs[3].classList.add('active');
 };
 
-// ================= HOURS SECTION =================
 const inputsDiv = document.getElementById("inputs");
 subjects.forEach(subject => {
     const row = document.createElement("div"); row.className = "row";
-    row.innerHTML = `<span>${subject}</span><div class="inputGroup"><input type="number" placeholder="Total" id="${subject}-total" style="width: 100px;"><input type="number" placeholder="Done" id="${subject}-completed" style="width: 100px;"></div>`;
+    row.innerHTML = `<span>${subject}</span><div class="inputGroup"><input type="number" placeholder="Total" id="${subject}-total" style="width: 80px;"><input type="number" placeholder="Done" id="${subject}-completed" style="width: 80px;"></div>`;
     inputsDiv.appendChild(row);
 });
 
 window.myPieChart = new Chart(document.getElementById('pieChart'), {
     type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 0, hoverOffset: 4 }] },
-    options: { plugins: { legend: { position: 'bottom', labels: { padding: 20, font: { family: 'Inter', size: 13, weight: '500' }, color: savedTheme === 'dark' ? '#f8fafc' : '#0f172a' } } }, cutout: "70%", layout: { padding: 10 } }
+    options: { plugins: { legend: { position: 'bottom', labels: { padding: 20, font: { family: '-apple-system', size: 13, weight: '500' }, color: savedTheme === 'dark' ? '#FFFFFF' : '#000000' } } }, cutout: "75%", layout: { padding: 10 } }
 });
 
 function updateChart(shouldSave = true) {
     if (!appData) return;
-    const baseColors = ["99,102,241", "16,185,129", "245,158,11", "239,68,68", "14,165,233"];
+    const baseColors = ["0,122,255", "52,199,89", "255,149,0", "255,59,48", "88,86,214"];
     const labels = [], data = [], colors = [];
 
     subjects.forEach((subject, i) => {
@@ -450,7 +577,6 @@ function updateChart(shouldSave = true) {
 }
 document.querySelectorAll("#inputs input").forEach(i => i.addEventListener("input", () => updateChart(true)));
 
-// ================= COMPLETION & REVISION LOGIC =================
 window.addCompletion = () => { const sub = document.getElementById("completionSubject").value; const chName = document.getElementById("completionChapter").value.trim(); if (!chName || !appData) return; if(!appData[currentUser].completion[sub]) appData[currentUser].completion[sub] = []; appData[currentUser].completion[sub].push({ name: chName, checks: [false, false, false] }); document.getElementById("completionChapter").value = ""; save(); renderCompletion(); };
 window.toggleCompletion = (sub, idx, box) => { appData[currentUser].completion[sub][idx].checks[box] = !appData[currentUser].completion[sub][idx].checks[box]; save(); };
 window.deleteCompletion = (sub, idx) => { if(confirm("Delete this chapter?")) { appData[currentUser].completion[sub].splice(idx, 1); save(); renderCompletion(); } };
@@ -461,7 +587,6 @@ window.toggleRevision = (sub, idx, box) => { appData[currentUser].revision[sub][
 window.deleteRevision = (sub, idx) => { if(confirm("Delete this revision entry?")) { appData[currentUser].revision[sub].splice(idx, 1); save(); renderRevision(); } };
 function renderRevision() { const tableContainer = document.getElementById("revisionTables"); tableContainer.innerHTML = ""; subjects.forEach(sub => { const list = appData[currentUser].revision[sub] || []; if (list.length > 0) { let rows = list.map((c, i) => `<tr><td>${c.name}</td><td><input type="checkbox" ${c.checks[0]?"checked":""} onchange="toggleRevision('${sub}',${i},0)"></td><td><input type="checkbox" ${c.checks[1]?"checked":""} onchange="toggleRevision('${sub}',${i},1)"></td><td><input type="checkbox" ${c.checks[2]?"checked":""} onchange="toggleRevision('${sub}',${i},2)"></td><td><input type="checkbox" ${c.checks[3]?"checked":""} onchange="toggleRevision('${sub}',${i},3)"></td><td><input type="checkbox" ${c.checks[4]?"checked":""} onchange="toggleRevision('${sub}',${i},4)"></td><td><button class="delBtn" onclick="deleteRevision('${sub}',${i})">X</button></td></tr>`).join(""); const card = document.createElement("div"); card.className = "subjectCard"; card.innerHTML = `<div class="subjectTitle">${sub}</div><table><tr><th width="30%">Chapter</th><th width="10%">Rev 1</th><th width="10%">Rev 2</th><th width="10%">Rev 3</th><th width="10%">Rev 4</th><th width="10%">Rev 5</th><th width="10%">Del</th></tr>${rows}</table>`; tableContainer.appendChild(card); } }); }
 
-// ================= SMART AUTOMATION LOGIC =================
 function evaluateAllStatuses() {
     if (!appData) return;
     const todayStr = getTodayStr();
@@ -488,11 +613,9 @@ function evaluateAllStatuses() {
             }
         }
     });
-    
     if (madeChanges) save();
 }
 
-// ================= CHECKLIST LOGIC =================
 function getOrCreateTodayEntry() {
     const todayStr = getTodayStr();
     if (!appData[currentUser].dayTracker) appData[currentUser].dayTracker = [];
@@ -510,29 +633,22 @@ window.addTodo = () => {
     const input = document.getElementById('newTodoInput');
     const text = input.value.trim();
     if(!text) return;
-
     const entry = getOrCreateTodayEntry();
     entry.tasks.push({ text: text, done: false });
     input.value = "";
-    
-    evaluateAllStatuses();
-    save(); renderDayTracker(); renderCalendar(); renderChecklist();
+    evaluateAllStatuses(); save(); renderDayTracker(); renderCalendar(); renderChecklist();
 };
 
 window.toggleTodo = (index) => {
     const entry = getOrCreateTodayEntry();
     entry.tasks[index].done = !entry.tasks[index].done;
-    
-    evaluateAllStatuses();
-    save(); renderDayTracker(); renderCalendar(); renderChecklist();
+    evaluateAllStatuses(); save(); renderDayTracker(); renderCalendar(); renderChecklist();
 };
 
 window.deleteTodo = (index) => {
     const entry = getOrCreateTodayEntry();
     entry.tasks.splice(index, 1);
-    
-    evaluateAllStatuses();
-    save(); renderDayTracker(); renderCalendar(); renderChecklist();
+    evaluateAllStatuses(); save(); renderDayTracker(); renderCalendar(); renderChecklist();
 };
 
 function renderChecklist() {
@@ -545,22 +661,18 @@ function renderChecklist() {
     const entry = appData[currentUser].dayTracker.find(d => d.date === todayStr);
     
     if (!entry || !entry.tasks || entry.tasks.length === 0) {
-        listDiv.innerHTML = "";
-        emptyMsg.style.display = "block";
-        return;
+        listDiv.innerHTML = ""; emptyMsg.style.display = "block"; return;
     }
-
     emptyMsg.style.display = "none";
     listDiv.innerHTML = entry.tasks.map((task, i) => `
         <div class="todo-item ${task.done ? 'done' : ''}">
             <input type="checkbox" class="todo-checkbox" ${task.done ? 'checked' : ''} onchange="toggleTodo(${i})">
             <span class="todo-text">${task.text}</span>
-            <button class="delBtn" style="padding: 4px 8px;" onclick="deleteTodo(${i})">X</button>
+            <button class="delBtn" style="padding: 4px 8px;" onclick="deleteTodo(${i})">✕</button>
         </div>
     `).join("");
 }
 
-// ================= DAY TRACKER & CALENDAR LOGIC =================
 window.changeMonth = (direction) => { currentCalDate.setMonth(currentCalDate.getMonth() + direction); renderCalendar(); };
 
 window.renderCalendar = () => {
@@ -597,7 +709,6 @@ window.renderCalendar = () => {
     grid.innerHTML = html;
 };
 
-// ================= MANUAL LOG SPECIFIC DATE =================
 window.addManualEntry = () => {
     const dateVal = document.getElementById('manualDateInput').value;
     if(!dateVal) { alert("Please select a date first!"); return; }
@@ -610,16 +721,12 @@ window.addManualEntry = () => {
     const fullStr = `${dateStr}, ${dayStr}`;
 
     if (!appData[currentUser].dayTracker) appData[currentUser].dayTracker = [];
-    
     const exists = appData[currentUser].dayTracker.find(entry => entry.date === fullStr);
-    if (exists) { alert("This date is already logged! You can edit it in the table below if it's recent."); return; }
+    if (exists) { alert("This date is already logged!"); return; }
 
     appData[currentUser].dayTracker.unshift({ date: fullStr, status: 0, comment: "", tasks: [], createdAt: Date.now() }); 
     document.getElementById('manualDateInput').value = ""; 
-    
-    save(); 
-    renderDayTracker(); 
-    renderCalendar();
+    save(); renderDayTracker(); renderCalendar();
 };
 
 window.cycleStatus = (idx) => {
@@ -627,7 +734,7 @@ window.cycleStatus = (idx) => {
     if (entry.tasks && entry.tasks.length > 0) return; 
     
     if (isEntryLocked(entry)) {
-        alert("🔒 This log was created over 3 days ago and is permanently locked.");
+        alert("🔒 This log is older than 3 days and is permanently locked.");
         return;
     }
 
@@ -659,8 +766,7 @@ window.updateComment = (idx, val) => {
 
 window.deleteDayEntry = (idx) => { 
     if (isEntryLocked(appData[currentUser].dayTracker[idx])) {
-        alert("🔒 You cannot delete logs that were created over 3 days ago.");
-        return;
+        alert("🔒 You cannot delete logs older than 3 days."); return;
     }
     if(confirm("Delete this manual entry?")) { 
         appData[currentUser].dayTracker.splice(idx, 1); 
@@ -673,14 +779,12 @@ window.renderDayTracker = () => {
     const list = appData[currentUser].dayTracker || [];
     const tbody = document.getElementById("dayTrackerBody");
     
-    let html = "", greens = 0, incompletes = 0, reds = 0;
-    let totalScoreVal = 0; 
+    let html = "", greens = 0, incompletes = 0, reds = 0, totalScoreVal = 0; 
 
     list.forEach((entry, idx) => {
         const isAuto = entry.tasks && entry.tasks.length > 0;
         const locked = isEntryLocked(entry); 
-        let pct = 0; 
-        let isManualPartial = false;
+        let pct = 0; let isManualPartial = false;
         
         if (isAuto) {
             const doneCount = entry.tasks.filter(t => t.done).length;
@@ -700,17 +804,12 @@ window.renderDayTracker = () => {
         if(entry.status === 3) statusText = "❌ Incomplete";
         
         let btnHTML = `<div class="status-btn status-${entry.status}" onclick="cycleStatus(${idx})">${statusText}</div>`;
-        if (isAuto) {
-            btnHTML = `<div class="status-btn status-${entry.status} status-auto" title="Status automated by checklist">${statusText} ⚡</div>`;
-        } else if (locked) {
-            btnHTML = `<div class="status-btn status-${entry.status} status-auto" title="Locked (Past 3-Day Grace Period)" onclick="cycleStatus(${idx})">${statusText} 🔒</div>`;
-        }
+        if (isAuto) { btnHTML = `<div class="status-btn status-${entry.status} status-auto">${statusText} ⚡</div>`; } 
+        else if (locked) { btnHTML = `<div class="status-btn status-${entry.status} status-auto" onclick="cycleStatus(${idx})">${statusText} 🔒</div>`; }
 
         const disabledAttr = locked ? "disabled" : "";
-        let delHTML = `<button class="delBtn" onclick="deleteDayEntry(${idx})">X</button>`;
-        if (locked) {
-            delHTML = `<button class="delBtn" style="opacity:0.4; cursor:not-allowed;" title="Locked" onclick="deleteDayEntry(${idx})">🔒</button>`;
-        }
+        let delHTML = `<button class="delBtn" onclick="deleteDayEntry(${idx})">✕</button>`;
+        if (locked) { delHTML = `<button class="delBtn" style="opacity:0.3; cursor:not-allowed;" onclick="deleteDayEntry(${idx})">🔒</button>`; }
 
         let reasonCell = `<input type="text" class="comment-input ${entry.status === 3 ? 'show' : ''}" placeholder="Any notes on why?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)" ${disabledAttr}>`;
         
@@ -718,20 +817,14 @@ window.renderDayTracker = () => {
             reasonCell = `
             <div style="display:flex; gap:8px; animation: fadeIn 0.3s ease; width: 100%;">
                 <div style="position: relative; display: flex; align-items: center;">
-                    <input type="number" min="1" max="99" style="width: 70px; padding: 10px; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-main); border-radius: 10px; outline: none; margin: 0;" value="${pct}" onchange="updateManualPct(${idx}, this.value)" ${disabledAttr} title="Enter Completion %">
-                    <span style="position: absolute; right: 10px; font-size: 12px; color: var(--text-muted); pointer-events: none;">%</span>
+                    <input type="number" min="1" max="99" style="width: 65px; padding: 8px; background: var(--input-bg); border: none; color: var(--text-main); border-radius: 8px; outline: none; margin: 0;" value="${pct}" onchange="updateManualPct(${idx}, this.value)" ${disabledAttr} title="Enter Completion %">
+                    <span style="position: absolute; right: 8px; font-size: 12px; color: var(--text-muted); pointer-events: none;">%</span>
                 </div>
                 <input type="text" class="comment-input show" style="flex-grow:1; margin: 0;" placeholder="Any notes on why?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)" ${disabledAttr}>
             </div>`;
         }
 
-        html += `
-            <tr>
-                <td style="font-size: 13px;">${entry.date}</td>
-                <td>${btnHTML}</td>
-                <td>${reasonCell}</td>
-                <td>${delHTML}</td>
-            </tr>`;
+        html += `<tr><td style="font-size: 13px;">${entry.date}</td><td>${btnHTML}</td><td>${reasonCell}</td><td>${delHTML}</td></tr>`;
     });
     tbody.innerHTML = html;
 
@@ -739,10 +832,10 @@ window.renderDayTracker = () => {
     let score = total > 0 ? Math.round((totalScoreVal / total) * 100) : 0;
 
     document.getElementById("trackerSummary").innerHTML = `
-        <div class="sum-card" style="border-top: 4px solid #10b981;"><h4>Achieved</h4><span style="color:#10b981">${greens}</span></div>
-        <div class="sum-card" style="border-top: 4px solid #f59e0b;"><h4>Partial</h4><span style="color:#f59e0b">${incompletes}</span></div>
-        <div class="sum-card" style="border-top: 4px solid #ef4444;"><h4>Missed</h4><span style="color:#ef4444">${reds}</span></div>
-        <div class="sum-card" style="border-top: 4px solid #6366f1;"><h4>Efficiency</h4><span style="color:#6366f1">${score}%</span></div>
+        <div class="sum-card" style="border-top: 4px solid var(--ios-green);"><h4>Achieved</h4><span style="color:var(--ios-green)">${greens}</span></div>
+        <div class="sum-card" style="border-top: 4px solid var(--ios-orange);"><h4>Partial</h4><span style="color:var(--ios-orange)">${incompletes}</span></div>
+        <div class="sum-card" style="border-top: 4px solid var(--ios-red);"><h4>Missed</h4><span style="color:var(--ios-red)">${reds}</span></div>
+        <div class="sum-card" style="border-top: 4px solid var(--ios-blue);"><h4>Efficiency</h4><span style="color:var(--ios-blue)">${score}%</span></div>
     `;
 };
 
@@ -765,16 +858,10 @@ function loadUser() {
     renderCompletion(); renderRevision(); renderChecklist(); renderDayTracker(); renderCalendar(); updateChart(false);
 }
 
-// INIT
 onValue(ref(db, "caStudyTracker"), (snap) => {
     const data = snap.val();
-    if (data) {
-        appData = data;
-        document.getElementById("saveStatus").innerText = "✔ Database Connected";
-    } else {
-        appData = { Swayam: createEmpty(), Nishika: createEmpty() };
-        document.getElementById("saveStatus").innerText = "✔ New Database Initialized";
-    }
+    if (data) { appData = data; document.getElementById("saveStatus").innerText = "✔ Database Connected"; document.getElementById("saveStatus").style.color = "var(--ios-green)"; } 
+    else { appData = { Swayam: createEmpty(), Nishika: createEmpty() }; document.getElementById("saveStatus").innerText = "✔ New Database Initialized"; document.getElementById("saveStatus").style.color = "var(--ios-green)";}
     loadUser();
 });
 </script>
