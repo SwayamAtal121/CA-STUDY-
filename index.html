@@ -110,18 +110,20 @@ input:focus, select:focus { border-color: var(--color-primary); box-shadow: 0 0 
 button { border: none; padding: 12px 24px; border-radius: 14px; background: var(--color-primary); color: white; cursor: pointer; font-weight: 600; font-size: 14px; font-family: inherit; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
 button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3); }
 
-/* TABLES */
+/* --- PERFECTLY ALIGNED TABLES --- */
 .subjectCard { margin-top: 32px; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--border-color); overflow: hidden; box-shadow: var(--shadow-soft); }
 .subjectTitle { font-weight: 700; font-size: 16px; color: var(--color-primary); background: var(--input-bg); padding: 16px 24px; border-bottom: 1px solid var(--border-color); }
 table { width: 100%; min-width: 650px; border-collapse: collapse; }
 tr { border-bottom: 1px solid var(--border-color); }
 tr:last-child { border-bottom: none; }
-th, td { padding: 16px 24px; text-align: center; font-size: 14px; }
-td:first-child { text-align: left; font-weight: 600; color: var(--text-main); }
+th, td { padding: 16px 24px; text-align: center; font-size: 14px; vertical-align: middle; }
+/* Centered chapter name */
+td:first-child { text-align: center; font-weight: 600; color: var(--text-main); }
 th { color: var(--text-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
-input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--color-success); cursor: pointer; }
-.delBtn { background: rgba(251, 113, 133, 0.1); color: var(--color-danger); padding: 8px 12px; border-radius: 10px; font-size: 13px; box-shadow: none; display: flex; align-items: center; justify-content: center; }
+input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--color-success); cursor: pointer; vertical-align: middle; margin: 0; }
+/* Centered Delete Button */
+.delBtn { background: rgba(251, 113, 133, 0.1); color: var(--color-danger); padding: 8px 12px; border-radius: 10px; font-size: 13px; box-shadow: none; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin: 0 auto; }
 .delBtn:hover { background: var(--color-danger); color: white; transform: translateY(0); box-shadow: none;}
 #saveStatus { text-align: center; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-top: 40px; padding: 12px 20px; border-radius: 12px; width: max-content; margin-left: auto; margin-right: auto; background: var(--card-bg); border: 1px solid var(--border-color); box-shadow: var(--shadow-soft); }
 .hidden { display: none; }
@@ -158,7 +160,7 @@ input[type="number"] { -moz-appearance: textfield; }
 .cal-day.today { background: var(--color-primary); color: white; font-weight: 700; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
 .cal-nav-btn { background: var(--input-bg); color: var(--color-primary); padding: 8px 14px; border-radius: 10px; }
 
-/* --- CHECKLIST & TIMER STYLES --- */
+/* CHECKLIST & TIMER STYLES */
 .todo-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 12px; background: transparent; border-bottom: 1px dashed var(--border-color); gap: 12px;}
 .todo-item:last-child { border-bottom: none; }
 .todo-item.done { opacity: 0.5; background: var(--input-bg); border-radius: 12px; border: none; margin-bottom: 8px; }
@@ -343,7 +345,6 @@ function getTodayStr() {
     return `${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${d.toLocaleDateString('en-GB', { weekday: 'short' })}`;
 }
 
-// HELPER: FORMAT SECONDS TO MM:SS or HH:MM:SS
 function formatTime(totalSeconds) {
     if (!totalSeconds) return "00:00";
     const h = Math.floor(totalSeconds / 3600);
@@ -353,7 +354,6 @@ function formatTime(totalSeconds) {
     return `${m}:${s}`;
 }
 
-// HELPER: FORMAT TIMESTAMP TO 10:30 AM
 function formatTimeStr(ts) {
     if (!ts) return "";
     return new Date(ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -523,22 +523,15 @@ function getOrCreateTodayEntry() {
     return entry;
 }
 
-// --- TIMER FUNCTIONS (Bulletproofed with Started/Ended Times) ---
 window.addTodo = () => {
     const input = document.getElementById('newTodoInput');
     const text = input.value.trim();
     if(!text) return;
     const entry = getOrCreateTodayEntry();
     
-    // Initialize task with all timing variables
     entry.tasks.push({ 
-        text: text, 
-        done: false, 
-        timeElapsed: 0, 
-        isRunning: false, 
-        lastStarted: 0,
-        firstStartedAt: null, // NEW: Tracks when they hit play the first time
-        completedAt: null     // NEW: Tracks when they check the box
+        text: text, done: false, timeElapsed: 0, isRunning: false, 
+        lastStarted: 0, firstStartedAt: null, completedAt: null 
     });
     
     input.value = "";
@@ -551,18 +544,13 @@ window.toggleTimer = (index) => {
     if (task.done) return; 
 
     if (task.isRunning) {
-        // Pause safely
         task.timeElapsed += Math.floor((Date.now() - task.lastStarted) / 1000);
         task.isRunning = false;
         task.lastStarted = 0; 
     } else {
-        // Play safely
         task.lastStarted = Date.now();
         task.isRunning = true;
-        // Record very first start time if it doesn't exist yet
-        if (!task.firstStartedAt) {
-            task.firstStartedAt = Date.now();
-        }
+        if (!task.firstStartedAt) { task.firstStartedAt = Date.now(); }
     }
     save(); renderChecklist();
 };
@@ -571,9 +559,8 @@ window.toggleTodo = (index) => {
     const entry = getOrCreateTodayEntry();
     const task = entry.tasks[index];
     
-    if (task.done) return; // Cannot unlock
+    if (task.done) return; 
 
-    // Stop timer and secure time
     if (task.isRunning) {
         task.timeElapsed += Math.floor((Date.now() - task.lastStarted) / 1000);
         task.isRunning = false;
@@ -581,7 +568,7 @@ window.toggleTodo = (index) => {
     }
     
     task.done = true; 
-    task.completedAt = Date.now(); // Record exact completion time!
+    task.completedAt = Date.now(); 
     
     evaluateAllStatuses(); save(); renderDayTracker(); renderCalendar(); renderChecklist();
 };
@@ -594,7 +581,6 @@ window.deleteTodo = (index) => {
     evaluateAllStatuses(); save(); renderDayTracker(); renderCalendar(); renderChecklist();
 };
 
-// LIVE TIMER UPDATER 
 setInterval(() => {
     if (!appData || !appData[currentUser].dayTracker) return;
     const todayStr = getTodayStr();
@@ -653,13 +639,11 @@ function renderChecklist() {
             delBtn = `<div style="width: 30px;"></div>`; 
         }
 
-        // BUILD THE TIMESTAMP TEXT (Started: X | Ended: Y)
         let timeStampHtml = '';
         if (task.firstStartedAt || task.completedAt) {
             let startedStr = task.firstStartedAt ? `Started: ${formatTimeStr(task.firstStartedAt)}` : '';
             let endedStr = task.completedAt ? `Ended: ${formatTimeStr(task.completedAt)}` : '';
             let separator = (startedStr && endedStr) ? ' • ' : '';
-            
             timeStampHtml = `<div class="todo-timestamps">${startedStr}${separator}${endedStr}</div>`;
         }
 
