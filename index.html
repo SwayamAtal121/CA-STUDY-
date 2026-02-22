@@ -113,6 +113,11 @@ input[type="checkbox"]{ width:22px; height:22px; accent-color:#10b981; cursor:po
 .comment-input { width: 100%; display: none; margin: 0; background: var(--input-bg); }
 .comment-input.show { display: block; animation: fadeIn 0.3s ease; }
 .comment-input:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Number Input hidden arrows */
+input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
+
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
 /* CALENDAR SPECIFIC */
@@ -288,7 +293,6 @@ function isEntryLocked(entry) {
     const today = new Date();
     today.setHours(0,0,0,0);
 
-    // If it has a createdAt timestamp (All new entries going forward will)
     if (entry.createdAt) {
         const created = new Date(entry.createdAt);
         created.setHours(0,0,0,0);
@@ -296,7 +300,6 @@ function isEntryLocked(entry) {
         return diffDays > 3;
     }
 
-    // Fallback logic for old entries that don't have createdAt
     const parts = entry.date.split(',');
     const dayMonthYear = parts[0].trim(); 
     
@@ -458,7 +461,6 @@ function getOrCreateTodayEntry() {
     
     let entry = appData[currentUser].dayTracker.find(d => d.date === todayStr);
     if (!entry) {
-        // NEW: Stores createdAt timestamp for exactly 3 days of edit allowance!
         entry = { date: todayStr, status: 0, comment: "", tasks: [], createdAt: Date.now() };
         appData[currentUser].dayTracker.unshift(entry);
     }
@@ -540,7 +542,6 @@ window.renderCalendar = () => {
     const todayDate = new Date();
     
     for(let i = 1; i <= daysInMonth; i++) {
-        // Allows the calendar to pull entries safely, regardless of old or new format
         const searchStrWithYear = `${String(i).padStart(2, '0')} ${monthShort} ${year}`; 
         const searchStrOldFormat = `${String(i).padStart(2, '0')} ${monthShort},`; 
 
@@ -566,7 +567,6 @@ window.addManualEntry = () => {
     const [y, m, d] = dateVal.split('-');
     const dateObj = new Date(y, m - 1, d);
     
-    // NEW: Dates are now logged WITH the year so there's never an overlap!
     const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     const dayStr = dateObj.toLocaleDateString('en-GB', { weekday: 'short' });
     const fullStr = `${dateStr}, ${dayStr}`;
@@ -576,7 +576,6 @@ window.addManualEntry = () => {
     const exists = appData[currentUser].dayTracker.find(entry => entry.date === fullStr);
     if (exists) { alert("This date is already logged! You can edit it in the table below if it's recent."); return; }
 
-    // NEW: Stores createdAt timestamp for exactly 3 days of edit allowance!
     appData[currentUser].dayTracker.unshift({ date: fullStr, status: 0, comment: "", tasks: [], createdAt: Date.now() }); 
     document.getElementById('manualDateInput').value = ""; 
     
@@ -594,14 +593,25 @@ window.cycleStatus = (idx) => {
         return;
     }
 
+    // NEW Toggle: Click to Set(0) -> 100% Complete(1) -> Partial(2) -> Incomplete(3) -> 0
     let current = entry.status;
-    if (current === 0) current = 1;
-    else if (current === 1) current = 3;
-    else current = 0;
+    current = (current + 1) % 4; 
     
     entry.status = current;
-    if (current !== 3) { entry.comment = ""; }
+    if (current !== 3 && current !== 2) { entry.comment = ""; }
+    if (current === 2 && !entry.manualPct) { entry.manualPct = 50; } // Default partial to 50%
     save(); renderDayTracker(); renderCalendar();
+};
+
+window.updateManualPct = (idx, val) => {
+    if (isEntryLocked(appData[currentUser].dayTracker[idx])) return;
+    let num = parseInt(val);
+    if (isNaN(num)) num = 50;
+    if (num > 99) num = 99; // Can't be 100 (that's status 1)
+    if (num < 1) num = 1;   // Can't be 0 (that's status 3)
+    
+    appData[currentUser].dayTracker[idx].manualPct = num;
+    save(); renderDayTracker();
 };
 
 window.updateComment = (idx, val) => { 
@@ -633,19 +643,23 @@ window.renderDayTracker = () => {
         const isAuto = entry.tasks && entry.tasks.length > 0;
         const locked = isEntryLocked(entry); 
         let pct = 0; 
+        let isManualPartial = false;
         
         if (isAuto) {
             const doneCount = entry.tasks.filter(t => t.done).length;
             pct = Math.round((doneCount / entry.tasks.length) * 100);
+        } else if (entry.status === 2) {
+            pct = entry.manualPct || 50;
+            isManualPartial = true;
         }
 
         if(entry.status === 1) { greens++; totalScoreVal += 1; }
-        if(entry.status === 2) { incompletes++; totalScoreVal += isAuto ? (pct / 100) : 0; }
+        if(entry.status === 2) { incompletes++; totalScoreVal += (pct / 100); }
         if(entry.status === 3) { reds++; }
 
         let statusText = "Click to Set";
         if(entry.status === 1) statusText = "✔ 100% Complete";
-        if(entry.status === 2) statusText = isAuto ? `➖ ${pct}%` : "➖ Incomplete"; 
+        if(entry.status === 2) statusText = isAuto ? `➖ ${pct}%` : `➖ Partially Complete`; 
         if(entry.status === 3) statusText = "❌ Incomplete";
         
         let btnHTML = `<div class="status-btn status-${entry.status}" onclick="cycleStatus(${idx})">${statusText}</div>`;
@@ -661,11 +675,26 @@ window.renderDayTracker = () => {
             delHTML = `<button class="delBtn" style="opacity:0.4; cursor:not-allowed;" title="Locked" onclick="deleteDayEntry(${idx})">🔒</button>`;
         }
 
+        // --- NEW REASON CELL LOGIC ---
+        let reasonCell = `<input type="text" class="comment-input ${entry.status === 3 ? 'show' : ''}" placeholder="Any notes on why?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)" ${disabledAttr}>`;
+        
+        // If it is manually set to Partial (status 2), show the dynamic input box inline!
+        if (isManualPartial) {
+            reasonCell = `
+            <div style="display:flex; gap:8px; animation: fadeIn 0.3s ease; width: 100%;">
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="number" min="1" max="99" style="width: 70px; padding: 10px; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-main); border-radius: 10px; outline: none; margin: 0;" value="${pct}" onchange="updateManualPct(${idx}, this.value)" ${disabledAttr} title="Enter Completion %">
+                    <span style="position: absolute; right: 10px; font-size: 12px; color: var(--text-muted); pointer-events: none;">%</span>
+                </div>
+                <input type="text" class="comment-input show" style="flex-grow:1; margin: 0;" placeholder="Any notes on why?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)" ${disabledAttr}>
+            </div>`;
+        }
+
         html += `
             <tr>
                 <td style="font-size: 13px;">${entry.date}</td>
                 <td>${btnHTML}</td>
-                <td><input type="text" class="comment-input ${entry.status === 3 || entry.status === 2 ? 'show' : ''}" placeholder="Any notes on why?" value="${entry.comment || ''}" onchange="updateComment(${idx}, this.value)" ${disabledAttr}></td>
+                <td>${reasonCell}</td>
                 <td>${delHTML}</td>
             </tr>`;
     });
