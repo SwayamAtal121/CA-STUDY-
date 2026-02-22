@@ -110,19 +110,17 @@ input:focus, select:focus { border-color: var(--color-primary); box-shadow: 0 0 
 button { border: none; padding: 12px 24px; border-radius: 14px; background: var(--color-primary); color: white; cursor: pointer; font-weight: 600; font-size: 14px; font-family: inherit; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
 button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3); }
 
-/* --- PERFECTLY ALIGNED TABLES --- */
+/* TABLES */
 .subjectCard { margin-top: 32px; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--border-color); overflow: hidden; box-shadow: var(--shadow-soft); }
 .subjectTitle { font-weight: 700; font-size: 16px; color: var(--color-primary); background: var(--input-bg); padding: 16px 24px; border-bottom: 1px solid var(--border-color); }
 table { width: 100%; min-width: 650px; border-collapse: collapse; }
 tr { border-bottom: 1px solid var(--border-color); }
 tr:last-child { border-bottom: none; }
 th, td { padding: 16px 24px; text-align: center; font-size: 14px; vertical-align: middle; }
-/* Centered chapter name */
 td:first-child { text-align: center; font-weight: 600; color: var(--text-main); }
 th { color: var(--text-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
 input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--color-success); cursor: pointer; vertical-align: middle; margin: 0; }
-/* Centered Delete Button */
 .delBtn { background: rgba(251, 113, 133, 0.1); color: var(--color-danger); padding: 8px 12px; border-radius: 10px; font-size: 13px; box-shadow: none; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin: 0 auto; }
 .delBtn:hover { background: var(--color-danger); color: white; transform: translateY(0); box-shadow: none;}
 #saveStatus { text-align: center; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-top: 40px; padding: 12px 20px; border-radius: 12px; width: max-content; margin-left: auto; margin-right: auto; background: var(--card-bg); border: 1px solid var(--border-color); box-shadow: var(--shadow-soft); }
@@ -340,11 +338,22 @@ let currentUser = "Swayam";
 let currentCalDate = new Date(); 
 const subjects = ["AFM", "FR", "DT", "IDT", "Audit"];
 
-function getTodayStr() {
+// --- NIGHT OWL DAY SHIFT (5:00 AM) ---
+// If you study past midnight, it counts as the same day until 5:00 AM.
+function getLogicalTodayDate() {
     const d = new Date();
+    if (d.getHours() < 5) {
+        d.setDate(d.getDate() - 1);
+    }
+    return d;
+}
+
+function getTodayStr() {
+    const d = getLogicalTodayDate();
     return `${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${d.toLocaleDateString('en-GB', { weekday: 'short' })}`;
 }
 
+// HELPER: FORMAT SECONDS TO MM:SS or HH:MM:SS
 function formatTime(totalSeconds) {
     if (!totalSeconds) return "00:00";
     const h = Math.floor(totalSeconds / 3600);
@@ -354,13 +363,14 @@ function formatTime(totalSeconds) {
     return `${m}:${s}`;
 }
 
+// HELPER: FORMAT TIMESTAMP TO 10:30 AM
 function formatTimeStr(ts) {
     if (!ts) return "";
     return new Date(ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 }
 
 function isEntryLocked(entry) {
-    const today = new Date();
+    const today = getLogicalTodayDate();
     today.setHours(0,0,0,0);
     if (entry.createdAt) {
         const created = new Date(entry.createdAt);
@@ -683,7 +693,7 @@ window.renderCalendar = () => {
     for(let i = 0; i < firstDay; i++) { html += `<div class="cal-day empty"></div>`; }
     
     const trackerData = appData[currentUser].dayTracker || [];
-    const todayDate = new Date();
+    const todayDate = getLogicalTodayDate();
     
     for(let i = 1; i <= daysInMonth; i++) {
         const searchStrWithYear = `${String(i).padStart(2, '0')} ${monthShort} ${year}`; 
