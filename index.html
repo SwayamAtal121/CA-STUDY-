@@ -90,11 +90,11 @@ h1 {
 }
 .theme-toggle:hover { transform: scale(1.05); }
 
-/* --- HEADER PHOTO (iOS Widget Style) --- */
+/* --- HEADER PHOTO (iOS Widget Style - DOUBLED SIZE) --- */
 .header-photo {
-    width: 140px; 
-    height: 80px; 
-    border-radius: 16px; /* Squarcle look */
+    width: 280px;  /* Doubled from 140px */
+    height: 160px; /* Doubled from 80px */
+    border-radius: 20px; /* Slightly rounder to match the larger size */
     object-fit: cover;
     object-position: center 30%;
     border: 1px solid var(--border-color);
@@ -121,7 +121,7 @@ h1 {
 .userBtn.active { 
     color: var(--text-main); 
     border-color: var(--ios-blue);
-    box-shadow: 0 0 0 1px var(--ios-blue); /* Subtle blue ring */
+    box-shadow: 0 0 0 1px var(--ios-blue); 
 }
 
 /* TABS (iOS Segmented Control) */
@@ -182,7 +182,6 @@ input, select {
 }
 input:focus, select:focus { box-shadow: 0 0 0 2px var(--ios-blue); }
 
-/* iOS Solid Button */
 button { 
     border: none; 
     padding: 10px 20px; 
@@ -261,7 +260,6 @@ input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--ios-gree
 .comment-input.show { display: block; animation: fadeIn 0.3s ease; }
 .comment-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Number Input hidden arrows */
 input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { -moz-appearance: textfield; }
 
@@ -294,7 +292,17 @@ input[type="number"] { -moz-appearance: textfield; }
 .todo-item.done .todo-text { text-decoration: line-through; }
 .todo-text { font-weight: 500; font-size: 14px; flex-grow: 1; margin: 0 12px; }
 
-@media(max-width:900px){ .container{grid-template-columns:1fr;} }
+/* RESPONSIVE DESIGN (Prevents breaking on mobile screens) */
+@media(max-width: 900px) { 
+    .container { grid-template-columns: 1fr; } 
+    .header-container { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 16px; 
+        position: relative; 
+    }
+    .theme-toggle { position: absolute; top: 0; right: 0; }
+}
 </style>
 </head>
 
@@ -303,7 +311,7 @@ input[type="number"] { -moz-appearance: textfield; }
 <div class="app">
     <div class="header-container">
         <div class="header-left">
-            <img src="photo.png" alt="Swayam & Nishika" class="header-photo" onerror="this.src='https://placehold.co/140x80/007AFF/FFFFFF?text=S+%26+N&font=Inter';">
+            <img src="photo.png" alt="Swayam & Nishika" class="header-photo" onerror="this.src='https://placehold.co/280x160/007AFF/FFFFFF?text=S+%26+N&font=Inter';">
         </div>
         
         <h1>CA Study Tracker</h1>
