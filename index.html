@@ -52,11 +52,37 @@ h1{ margin: 0; font-size: 28px; font-weight: 700; background: linear-gradient(to
 .theme-toggle { background: var(--card-bg); border: 1px solid var(--card-border); padding: 10px; border-radius: 50%; cursor: pointer; font-size: 20px; backdrop-filter: blur(10px); box-shadow: var(--shadow); color: var(--text-main); }
 .theme-toggle:hover { transform: scale(1.1); }
 
-/* USER SWITCH */
+/* --- NEW HEADER PHOTO STYLING (INCREASED SIZE) --- */
+.header-photo {
+    width: 150px; /* Increased size */
+    height: 85px;  /* Increased size */
+    border-radius: 12px;
+    object-fit: cover;
+    object-position: center 30%;
+    border: 2px solid var(--card-border);
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease;
+}
+.header-photo:hover {
+    transform: scale(1.05);
+}
+
+/* USER SWITCH WITH PHOTOS */
 .userSwitch{ display:flex; justify-content:center; gap:14px; margin-bottom:24px; }
-.userBtn{ padding:10px 28px; border-radius:999px; cursor:pointer; background:var(--tab-bg); border: 1px solid var(--card-border); font-weight: 500; }
+.userBtn{ 
+    padding: 6px 16px 6px 6px; 
+    border-radius:999px; 
+    cursor:pointer; 
+    background:var(--tab-bg); 
+    border: 1px solid var(--card-border); 
+    font-weight: 500; 
+    display: flex; align-items: center; gap: 10px; 
+    transition: all 0.3s ease;
+}
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; }
 .userBtn:hover{ background:var(--tab-hover); }
 .userBtn.active{ background: linear-gradient(135deg, #10b981, #059669); color: white; border-color: transparent; font-weight: 600; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); }
+.userBtn.active .user-avatar { border-color: white; } 
 
 /* TABS */
 .tabs{ display:flex; justify-content:center; gap:12px; margin-bottom:30px; flex-wrap:wrap; }
@@ -147,14 +173,21 @@ input[type="number"] { -moz-appearance: textfield; }
 
 <div class="app">
     <div class="header-container">
-        <div style="width: 44px;"></div>
+        <img src="photo.png" alt="Swayam & Nishika" class="header-photo" onerror="this.src='https://ui-avatars.com/api/?name=S+N&background=6366f1&color=fff&rounded=true';">
+        
         <h1>📘 CA Study Tracker</h1>
         <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" id="themeIcon">☀️</button>
     </div>
 
     <div class="userSwitch">
-        <div class="userBtn active" onclick="switchUser(event,'Swayam')">Swayam</div>
-        <div class="userBtn" onclick="switchUser(event,'Nishika')">Nishika</div>
+        <div class="userBtn active" onclick="switchUser(event,'Swayam')">
+            <img src="https://ui-avatars.com/api/?name=Swayam&background=6366f1&color=fff&rounded=true&bold=true" alt="Swayam" class="user-avatar">
+            <span>Swayam</span>
+        </div>
+        <div class="userBtn" onclick="switchUser(event,'Nishika')">
+            <img src="https://ui-avatars.com/api/?name=Nishika&background=a855f7&color=fff&rounded=true&bold=true" alt="Nishika" class="user-avatar">
+            <span>Nishika</span>
+        </div>
     </div>
 
     <div class="tabs">
